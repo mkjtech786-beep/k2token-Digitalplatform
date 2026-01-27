@@ -46,7 +46,7 @@
         }
         .btn:hover { background: var(--primary-dark); }
         .btn:disabled { background: #555; cursor: not-allowed; }
-        .btn-outline { background: transparent; border:1px solid var(--primary); color: var(--primary); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
         .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; }
         
         .input-group { margin-bottom: 15px; }
@@ -70,11 +70,11 @@
         }
         .toast {
             background: var(--bg-card);
-            border-left:4px solid var(--primary);
+            border-left: 4px solid var(--primary);
             color: white;
             padding: 15px 20px;
             margin-bottom: 10px;
-            border-radius:4px;
+            border-radius: 4px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease;
         }
@@ -95,7 +95,7 @@
         
         .section { padding: 15px; max-width: 600px; margin: 0 auto; }
         
-        .menu-grid { display: grid; grid-template-columns:1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .menu-card {
             background: var(--bg-card);
             padding: 20px;
@@ -135,9 +135,9 @@
         }
         .chat-user-item:hover { background: var(--primary); }
         
-        /* Unread Red Dot Style */
+        /* Unread Badge Style */
         .unread-badge {
-            color: #ff0000; /* Bright Red */
+            color: #ff0000;
             font-size: 10px;
             display: inline-block;
             width: 12px;
@@ -175,6 +175,14 @@
         .status-approved { background: #00c853; color: white; }
         .status-rejected { background: #ff3d00; color: white; }
         .status-banned { background: #333; color: red; border: 1px solid red; }
+
+        .settings-divider {
+            margin: 20px 0 10px 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -225,7 +233,7 @@
                 <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">App Settings</h3>
                 
-                <div style="margin: 20px 0 10px 0; border-bottom:1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Market Rates</div>
+                <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Market Rates</div>
                 
                 <div class="input-group">
                     <label>TK Price (USDT) - Internal Rate</label>
@@ -236,11 +244,36 @@
                     <input type="number" id="admin-usdt-rate">
                 </div>
 
-                <div style="margin: 20px 0 10px 0; border-bottom:1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Wallet Settings</div>
+                <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Wallet Settings</div>
 
                 <div class="input-group">
                     <label>Minimum Withdraw (TK)</label>
                     <input type="number" id="admin-min-withdraw">
+                </div>
+
+                <!-- ADDED: Withdraw Fee -->
+                <div class="input-group">
+                    <label>Withdraw Fee (%)</label>
+                    <input type="number" id="admin-withdraw-fee" step="0.01">
+                </div>
+
+                <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Deposit Details</div>
+
+                <div class="input-group">
+                    <label>Easypaisa Number</label>
+                    <input type="text" id="admin-easypaisa">
+                </div>
+                <div class="input-group">
+                    <label>JazzCash Number</label>
+                    <input type="text" id="admin-jazzcash">
+                </div>
+                <div class="input-group">
+                    <label>Till ID (Raast)</label>
+                    <input type="text" id="admin-tillid">
+                </div>
+                <div class="input-group">
+                    <label>QR Code Image URL</label>
+                    <input type="text" id="admin-qr-url" placeholder="./qr.png">
                 </div>
 
                 <button class="btn" onclick="updateAdminSettings()">Save All Settings</button>
@@ -262,7 +295,6 @@
                             </tr>
                         </thead>
                         <tbody id="admin-deposit-list">
-                            <!-- Rows -->
                         </tbody>
                     </table>
                 </div>
@@ -284,7 +316,6 @@
                             </tr>
                         </thead>
                         <tbody id="admin-user-list">
-                            <!-- Rows -->
                         </tbody>
                     </table>
                 </div>
@@ -302,7 +333,7 @@
                 <button class="btn" onclick="postNews()">Post Update</button>
             </section>
 
-             <!-- Admin: Chat (With Unread Badge) -->
+             <!-- Admin: Chat -->
              <section id="admin-chat" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">User Chats <small style="color:red; font-size:0.7rem;">(Real-time)</small></h3>
@@ -310,12 +341,11 @@
                 <div class="chat-container">
                     <!-- User List -->
                     <div id="admin-chat-list" class="chat-user-list">
-                        <!-- User items loaded here -->
                     </div>
 
                     <!-- Chat Window -->
                     <div id="admin-chat-window" class="chat-box hidden">
-                         <div style="padding:10px; border-bottom:1px solid #333; background:var(--bg-card);">
+                         <div style="padding:10px; border-bottom: 1px solid #333; background:var(--bg-card);">
                              Chatting with: <strong id="chatting-with-name" class="text-orange">--</strong>
                          </div>
                          <div class="chat-messages" id="admin-chat-messages"></div>
@@ -330,9 +360,7 @@
         </main>
     </div>
 
-    <!-- Scripts -->
     <script type="module">
-        // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { 
             getDatabase, 
@@ -344,7 +372,6 @@
             set
         } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
             authDomain: "injector-c964a.firebaseapp.com",
@@ -356,15 +383,13 @@
             measurementId: "G-DBMSEZZWW1"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         let marketData = { tkPrice: 1.50, usdtRate: 280 };
-        let appSettings = { minWithdraw: 50 };
+        let appSettings = { minWithdraw: 50, withdrawFee: 0.05 }; 
         let adminSelectedChatUser = null; 
 
-        // --- UTILITIES ---
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -375,7 +400,6 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // --- INITIALIZATION ---
         function initApp() {
             document.getElementById('app-container').classList.remove('hidden');
 
@@ -390,13 +414,30 @@
                 const data = snapshot.val();
                 if (data) {
                     appSettings = data;
+                    // Update UI inputs
                     const minInput = document.getElementById('admin-min-withdraw');
                     if(minInput) minInput.value = appSettings.minWithdraw || 50;
+
+                    // Updated: Load Withdraw Fee
+                    const feeInput = document.getElementById('admin-withdraw-fee');
+                    if(feeInput) feeInput.value = (appSettings.withdrawFee * 100) || 5;
+
+                    // Update Deposit Inputs
+                    const easypaisaInput = document.getElementById('admin-easypaisa');
+                    if(easypaisaInput) easypaisaInput.value = appSettings.easypaisa || '';
+                    
+                    const jazzInput = document.getElementById('admin-jazzcash');
+                    if(jazzInput) jazzInput.value = appSettings.jazzcash || '';
+
+                    const tillInput = document.getElementById('admin-tillid');
+                    if(tillInput) tillInput.value = appSettings.tillid || '';
+
+                    const qrInput = document.getElementById('admin-qr-url');
+                    if(qrInput) qrInput.value = appSettings.qrUrl || './qr.png';
                 }
             });
         }
 
-        // --- APP NAVIGATION ---
         window.showAdminSection = (sectionId) => {
             document.querySelectorAll('#admin-views .section').forEach(el => el.classList.add('hidden'));
             if(sectionId === 'dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
@@ -407,23 +448,47 @@
             if (sectionId === 'chat') loadAdminChatList();
         };
 
-        // --- ADMIN FUNCTIONS ---
         function loadAdminMarket() {
             document.getElementById('admin-tk-price').value = marketData.tkPrice;
             document.getElementById('admin-usdt-rate').value = marketData.usdtRate;
             document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
+            document.getElementById('admin-withdraw-fee').value = (appSettings.withdrawFee * 100) || 5;
+            
+            document.getElementById('admin-easypaisa').value = appSettings.easypaisa || '0300-1234567';
+            document.getElementById('admin-jazzcash').value = appSettings.jazzcash || '0321-7654321';
+            document.getElementById('admin-tillid').value = appSettings.tillid || '03XX-XXXXXXX (Raast)';
+            document.getElementById('admin-qr-url').value = appSettings.qrUrl || './qr.png';
         }
 
+        // UPDATED ADMIN SETTINGS FUNCTION
         window.updateAdminSettings = () => {
             const price = parseFloat(document.getElementById('admin-tk-price').value);
             const rate = parseFloat(document.getElementById('admin-usdt-rate').value);
             const minWithdraw = parseFloat(document.getElementById('admin-min-withdraw').value);
+            
+            // Get Deposit Values
+            const easypaisa = document.getElementById('admin-easypaisa').value;
+            const jazzcash = document.getElementById('admin-jazzcash').value;
+            const tillid = document.getElementById('admin-tillid').value;
+            const qrUrl = document.getElementById('admin-qr-url').value;
+            
+            // Get Withdraw Fee (Value is e.g. 5, will be converted to 0.05 in code)
+            const withdrawFeePercent = parseFloat(document.getElementById('admin-withdraw-fee').value);
+            const withdrawFeeDecimal = withdrawFeePercent / 100;
 
             const updates = {};
+            // Update Market
             updates['market/tkPrice'] = price;
             updates['market/usdtRate'] = rate;
             updates['market/mode'] = 'manual';
+
+            // Update Settings (Withdraw + Deposit)
             updates['settings/minWithdraw'] = minWithdraw;
+            updates['settings/withdrawFee'] = withdrawFeeDecimal; // Save Decimal
+            updates['settings/easypaisa'] = easypaisa;
+            updates['settings/jazzcash'] = jazzcash;
+            updates['settings/tillid'] = tillid;
+            updates['settings/qrUrl'] = qrUrl;
 
             update(ref(db), updates).then(() => {
                 showToast("Settings Updated");
@@ -536,7 +601,7 @@
             }
         }
         
-        // --- CHAT FUNCTIONALITY WITH UNREAD BADGE ---
+        // --- CHAT FUNCTIONALITY ---
         function loadAdminChatList() {
             const list = document.getElementById('admin-chat-list');
             list.innerHTML = '<div style="padding:10px; text-align:center; color:#777;">Loading users...</div>';
@@ -547,7 +612,6 @@
                 if(data) {
                     Object.keys(data).forEach((uid) => {
                         const u = data[uid];
-                        // Create clickable user item
                         const item = document.createElement('div');
                         item.className = 'chat-user-item';
                         // Add an ID to this item so we can find it later to add badge
@@ -619,6 +683,9 @@
 
                 Object.values(data).forEach(msg => {
                     const div = document.createElement('div');
+                    // If sender is 'admin', it's admin reply (align left)
+                    // If sender is uid, it's user msg (align right)
+                    // Note: user app stores msg.sender as currentUserData.uid
                     const isAdminMsg = msg.sender === 'admin';
                     div.className = `message ${isAdminMsg ? 'msg-admin' : 'msg-user'}`;
                     div.innerText = msg.text;
