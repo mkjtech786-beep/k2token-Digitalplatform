@@ -46,7 +46,7 @@
         }
         .btn:hover { background: var(--primary-dark); }
         .btn:disabled { background: #555; cursor: not-allowed; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline { background: transparent; border:1px solid var(--primary); color: var(--primary); }
         .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; }
         
         .input-group { margin-bottom: 15px; }
@@ -70,17 +70,15 @@
         }
         .toast {
             background: var(--bg-card);
-            border-left: 4px solid var(--primary);
+            border-left:4px solid var(--primary);
             color: white;
             padding: 15px 20px;
             margin-bottom: 10px;
-            border-radius: 4px;
+            border-radius:4px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease;
         }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* Auth Screen Removed */
 
         header {
             background: var(--bg-card);
@@ -97,7 +95,7 @@
         
         .section { padding: 15px; max-width: 600px; margin: 0 auto; }
         
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .menu-grid { display: grid; grid-template-columns:1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .menu-card {
             background: var(--bg-card);
             padding: 20px;
@@ -110,9 +108,54 @@
         .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
         .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
 
-        .chat-box {
+        /* Chat Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 70vh;
+        }
+        .chat-user-list {
+            flex: 1;
+            overflow-y: auto;
             background: var(--bg-card);
-            height: 60vh;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #333;
+        }
+        .chat-user-item {
+            padding: 10px;
+            background: #2a2a2a;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-user-item:hover { background: var(--primary); }
+        
+        /* Unread Red Dot Style */
+        .unread-badge {
+            color: #ff0000; /* Bright Red */
+            font-size: 10px;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
+        .chat-box {
+            flex: 2;
+            background: var(--bg-card);
             border-radius: 10px;
             display: flex;
             flex-direction: column;
@@ -131,6 +174,7 @@
         .status-pending { background: #ff9800; color: black; }
         .status-approved { background: #00c853; color: white; }
         .status-rejected { background: #ff3d00; color: white; }
+        .status-banned { background: #333; color: red; border: 1px solid red; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -138,14 +182,13 @@
 
     <div id="toast-container"></div>
 
-    <!-- Main App Container (Initially Hidden, Shown via JS) -->
+    <!-- Main App Container -->
     <div id="app-container" class="hidden">
         
         <header>
             <div class="logo">
                 <i class="fas fa-user-shield"></i> TK Admin
             </div>
-            <!-- Logout button removed -->
         </header>
 
         <main id="admin-views">
@@ -154,8 +197,8 @@
                 
                 <div class="menu-grid" style="margin-top: 20px;">
                     <div class="menu-card" onclick="showAdminSection('market')">
-                        <span class="menu-icon text-orange"><i class="fas fa-chart-line"></i></span>
-                        <div>Market</div>
+                        <span class="menu-icon text-orange"><i class="fas fa-cogs"></i></span>
+                        <div>Settings</div>
                     </div>
                     <div class="menu-card" onclick="showAdminSection('deposits')">
                         <span class="menu-icon text-green"><i class="fas fa-check-double"></i></span>
@@ -177,18 +220,30 @@
                 </div>
             </section>
 
-            <!-- Admin: Market Control -->
+            <!-- Admin: Market & Settings -->
             <section id="admin-market" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
-                <h3 class="text-orange" style="margin-top: 15px;">Market Control</h3>
+                <h3 class="text-orange" style="margin-top: 15px;">App Settings</h3>
+                
+                <div style="margin: 20px 0 10px 0; border-bottom:1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Market Rates</div>
+                
                 <div class="input-group">
                     <label>TK Price (USDT) - Internal Rate</label>
-                    <input type="number" id="admin-tk-price" onchange="adminUpdateMarket()">
+                    <input type="number" id="admin-tk-price">
                 </div>
                 <div class="input-group">
                     <label>USDT to PKR Rate (For Display)</label>
-                    <input type="number" id="admin-usdt-rate" onchange="adminUpdateMarket()">
+                    <input type="number" id="admin-usdt-rate">
                 </div>
+
+                <div style="margin: 20px 0 10px 0; border-bottom:1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Wallet Settings</div>
+
+                <div class="input-group">
+                    <label>Minimum Withdraw (TK)</label>
+                    <input type="number" id="admin-min-withdraw">
+                </div>
+
+                <button class="btn" onclick="updateAdminSettings()">Save All Settings</button>
             </section>
 
             <!-- Admin: Deposits -->
@@ -223,8 +278,9 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Email</th>
+                                <th>Password</th>
                                 <th>Balance</th>
-                                <th>Role</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="admin-user-list">
@@ -238,6 +294,7 @@
             <section id="admin-news" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">Post News</h3>
+                <p style="color:#777; font-size:0.8rem; margin-bottom:10px;">Posting this will delete old news.</p>
                 <div class="input-group">
                     <label>Headline</label>
                     <input type="text" id="admin-news-headline">
@@ -245,19 +302,28 @@
                 <button class="btn" onclick="postNews()">Post Update</button>
             </section>
 
-             <!-- Admin: Chat -->
+             <!-- Admin: Chat (With Unread Badge) -->
              <section id="admin-chat" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
-                <h3 class="text-orange" style="margin-top: 15px;">User Chats</h3>
-                <div id="admin-chat-list">
-                    <!-- List of users to chat with -->
-                </div>
-                <div id="admin-chat-window" class="chat-box hidden">
-                     <div class="chat-messages" id="admin-chat-messages"></div>
-                     <div class="chat-input-area">
-                         <input type="text" id="admin-chat-input" placeholder="Reply...">
-                         <button class="btn btn-sm" onclick="adminSendReply()">Reply</button>
-                     </div>
+                <h3 class="text-orange" style="margin-top: 15px;">User Chats <small style="color:red; font-size:0.7rem;">(Real-time)</small></h3>
+                
+                <div class="chat-container">
+                    <!-- User List -->
+                    <div id="admin-chat-list" class="chat-user-list">
+                        <!-- User items loaded here -->
+                    </div>
+
+                    <!-- Chat Window -->
+                    <div id="admin-chat-window" class="chat-box hidden">
+                         <div style="padding:10px; border-bottom:1px solid #333; background:var(--bg-card);">
+                             Chatting with: <strong id="chatting-with-name" class="text-orange">--</strong>
+                         </div>
+                         <div class="chat-messages" id="admin-chat-messages"></div>
+                         <div class="chat-input-area">
+                             <input type="text" id="admin-chat-input" placeholder="Reply...">
+                             <button class="btn btn-sm" onclick="adminSendReply()">Reply</button>
+                         </div>
+                    </div>
                 </div>
             </section>
 
@@ -266,7 +332,7 @@
 
     <!-- Scripts -->
     <script type="module">
-        // Import Firebase SDKs (Auth Removed)
+        // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { 
             getDatabase, 
@@ -274,10 +340,11 @@
             push, 
             onValue, 
             update, 
-            get
+            get,
+            set
         } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-        // Your Firebase Configuration (Same as Index)
+        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
             authDomain: "injector-c964a.firebaseapp.com",
@@ -291,10 +358,10 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        // Auth removed
         const db = getDatabase(app);
 
         let marketData = { tkPrice: 1.50, usdtRate: 280 };
+        let appSettings = { minWithdraw: 50 };
         let adminSelectedChatUser = null; 
 
         // --- UTILITIES ---
@@ -310,17 +377,21 @@
 
         // --- INITIALIZATION ---
         function initApp() {
-            // Directly show Admin Panel without Auth check
             document.getElementById('app-container').classList.remove('hidden');
-            // Ensure auth screen is hidden if it exists in DOM (it doesn't but good practice)
-            const authScreen = document.getElementById('auth-screen');
-            if(authScreen) authScreen.classList.add('hidden');
 
-            // Market Listeners
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     marketData = data;
+                }
+            });
+
+            onValue(ref(db, 'settings'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appSettings = data;
+                    const minInput = document.getElementById('admin-min-withdraw');
+                    if(minInput) minInput.value = appSettings.minWithdraw || 50;
                 }
             });
         }
@@ -340,16 +411,23 @@
         function loadAdminMarket() {
             document.getElementById('admin-tk-price').value = marketData.tkPrice;
             document.getElementById('admin-usdt-rate').value = marketData.usdtRate;
+            document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
         }
 
-        window.adminUpdateMarket = () => {
+        window.updateAdminSettings = () => {
             const price = parseFloat(document.getElementById('admin-tk-price').value);
             const rate = parseFloat(document.getElementById('admin-usdt-rate').value);
-            update(ref(db, 'market'), {
-                tkPrice: price,
-                usdtRate: rate,
-                mode: 'manual'
-            }).then(() => showToast("Market Updated"));
+            const minWithdraw = parseFloat(document.getElementById('admin-min-withdraw').value);
+
+            const updates = {};
+            updates['market/tkPrice'] = price;
+            updates['market/usdtRate'] = rate;
+            updates['market/mode'] = 'manual';
+            updates['settings/minWithdraw'] = minWithdraw;
+
+            update(ref(db), updates).then(() => {
+                showToast("Settings Updated");
+            });
         }
 
         function loadAdminDeposits() {
@@ -384,15 +462,9 @@
 
         window.approveDep = (key, uid, amount) => {
             const updates = {};
-            
-            // 1. Get current balance
             get(ref(db, 'users/' + uid)).then(snap => {
                 const curBal = snap.val().balanceTK;
-                
-                // 2. Update Balance
                 updates['users/' + uid + '/balanceTK'] = curBal + amount;
-                
-                // 3. Update Deposit Status
                 updates['deposits/' + key + '/status'] = 'approved';
                 
                 update(ref(db), updates).then(() => {
@@ -415,13 +487,21 @@
                 const data = snapshot.val();
                 list.innerHTML = "";
                 if(data) {
-                    Object.values(data).forEach(u => {
+                    Object.keys(data).forEach((uid) => {
+                        const u = data[uid];
+                        const isBanned = u.isBanned || false;
+                        const banBtnStyle = isBanned ? "background:#555; cursor:not-allowed" : "background:var(--danger)";
+                        const banText = isBanned ? "Banned" : "Ban Account";
+
                         list.innerHTML += `
                             <tr>
                                 <td>${u.name}</td>
                                 <td>${u.email}</td>
+                                <td>${u.password || '---'}</td>
                                 <td>${u.balanceTK}</td>
-                                <td>${u.role}</td>
+                                <td>
+                                    <button class="btn btn-sm" style="${banBtnStyle}" onclick="banUser('${uid}', ${isBanned})">${banText}</button>
+                                </td>
                             </tr>
                         `;
                     });
@@ -429,19 +509,136 @@
             });
         }
 
+        window.banUser = (uid, isAlreadyBanned) => {
+            if(isAlreadyBanned) {
+                showToast("User is already banned", "error");
+                return;
+            }
+            if(confirm("Are you sure you want to ban this user?")) {
+                update(ref(db, 'users/' + uid), {
+                    isBanned: true
+                }).then(() => showToast("User Banned"));
+            }
+        }
+
         window.postNews = () => {
             const title = document.getElementById('admin-news-headline').value;
             if(title) {
-                push(ref(db, 'news'), {
-                    title: title,
-                    date: new Date().toLocaleDateString()
-                }).then(() => showToast("News Posted"));
+                set(ref(db, 'news'), null).then(() => {
+                    push(ref(db, 'news'), {
+                        title: title,
+                        date: new Date().toLocaleDateString()
+                    }).then(() => {
+                        showToast("News Posted (Old Deleted)");
+                        document.getElementById('admin-news-headline').value = "";
+                    });
+                });
             }
         }
         
+        // --- CHAT FUNCTIONALITY WITH UNREAD BADGE ---
         function loadAdminChatList() {
-             const list = document.getElementById('admin-chat-list');
-             list.innerHTML = '<div style="padding:10px;">Chat functionality requires implementing a user list selector.</div>';
+            const list = document.getElementById('admin-chat-list');
+            list.innerHTML = '<div style="padding:10px; text-align:center; color:#777;">Loading users...</div>';
+
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                if(data) {
+                    Object.keys(data).forEach((uid) => {
+                        const u = data[uid];
+                        // Create clickable user item
+                        const item = document.createElement('div');
+                        item.className = 'chat-user-item';
+                        // Add an ID to this item so we can find it later to add badge
+                        item.id = `chat-user-${uid}`; 
+                        item.innerHTML = `<span><i class="fas fa-user-circle"></i> ${u.name}</span>`;
+                        item.onclick = () => selectAdminChatUser(uid, u.name);
+                        list.appendChild(item);
+
+                        // LISTEN FOR NEW MESSAGES FOR THIS SPECIFIC USER
+                        const chatRef = ref(db, 'chats/' + uid);
+                        onValue(chatRef, (chatSnap) => {
+                            const chatData = chatSnap.val();
+                            if(chatData) {
+                                // Get keys to find the latest message
+                                const msgKeys = Object.keys(chatData);
+                                const lastKey = msgKeys[msgKeys.length - 1];
+                                const lastMsg = chatData[lastKey];
+
+                                // Logic: If last message sender is NOT admin, and user is not currently selected
+                                // Then show unread badge
+                                if(lastMsg.sender !== 'admin' && adminSelectedChatUser !== uid) {
+                                    const badgeSpan = `<span class="unread-badge"></span>`;
+                                    // Check if badge already exists to avoid duplication
+                                    const existingBadge = document.getElementById(`chat-user-${uid}`).querySelector('.unread-badge');
+                                    if(!existingBadge) {
+                                        document.getElementById(`chat-user-${uid}`).innerHTML += badgeSpan;
+                                    }
+                                } else {
+                                    // If it is admin reply or user is selected, remove badge
+                                    const existingBadge = document.getElementById(`chat-user-${uid}`).querySelector('.unread-badge');
+                                    if(existingBadge) {
+                                        existingBadge.remove();
+                                    }
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    list.innerHTML = '<div style="padding:10px; text-align:center; color:#777;">No users found.</div>';
+                }
+            });
+        }
+
+        function selectAdminChatUser(uid, name) {
+            adminSelectedChatUser = uid;
+            document.getElementById('chatting-with-name').innerText = name;
+            
+            // REMOVE UNREAD BADGE ON CLICK
+            const userItem = document.getElementById(`chat-user-${uid}`);
+            if(userItem) {
+                const badge = userItem.querySelector('.unread-badge');
+                if(badge) badge.remove();
+            }
+
+            // Show Chat Window
+            document.getElementById('admin-chat-window').classList.remove('hidden');
+
+            // Load Messages
+            const chatRef = ref(db, 'chats/' + uid);
+            onValue(chatRef, (snapshot) => {
+                const container = document.getElementById('admin-chat-messages');
+                container.innerHTML = "";
+                const data = snapshot.val();
+                
+                if (!data) {
+                    container.innerHTML = `<div style="text-align:center; color:#777; margin-top:20px;">No messages yet.</div>`;
+                    return;
+                }
+
+                Object.values(data).forEach(msg => {
+                    const div = document.createElement('div');
+                    const isAdminMsg = msg.sender === 'admin';
+                    div.className = `message ${isAdminMsg ? 'msg-admin' : 'msg-user'}`;
+                    div.innerText = msg.text;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        window.adminSendReply = () => {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value;
+            if(!text || !adminSelectedChatUser) return;
+
+            push(ref(db, 'chats/' + adminSelectedChatUser), {
+                sender: 'admin',
+                text: text,
+                timestamp: Date.now()
+            });
+            input.value = "";
         }
 
         // Start App Immediately
