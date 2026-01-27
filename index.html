@@ -80,22 +80,7 @@
         }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        #auth-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #121212, #2a1b0d);
-        }
-        .auth-box {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            border-top: 3px solid var(--primary);
-        }
-        .auth-toggle { text-align: center; margin-top: 15px; font-size: 0.9rem; cursor: pointer; color: var(--primary); }
+        /* Auth Screen Removed */
 
         header {
             background: var(--bg-card);
@@ -153,37 +138,14 @@
 
     <div id="toast-container"></div>
 
-    <!-- Auth Screen -->
-    <div id="auth-screen">
-        <div class="auth-box">
-            <h2 class="text-orange" style="text-align: center; margin-bottom: 20px;">Admin Login</h2>
-            <form id="auth-form">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="auth-email" required placeholder="admin@app.com">
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="auth-pass" required placeholder="admin123">
-                </div>
-                <button type="submit" class="btn" id="auth-btn">Login</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main App Container -->
+    <!-- Main App Container (Initially Hidden, Shown via JS) -->
     <div id="app-container" class="hidden">
         
         <header>
             <div class="logo">
                 <i class="fas fa-user-shield"></i> TK Admin
             </div>
-            <div class="user-info" onclick="logout()" style="cursor: pointer;">
-                <div style="text-align: right;">
-                    <div>Admin Panel</div>
-                    <div style="font-size: 0.8rem; color: #777;">Logout</div>
-                </div>
-            </div>
+            <!-- Logout button removed -->
         </header>
 
         <main id="admin-views">
@@ -304,9 +266,8 @@
 
     <!-- Scripts -->
     <script type="module">
-        // Import Firebase SDKs
+        // Import Firebase SDKs (Auth Removed)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
         import { 
             getDatabase, 
             ref, 
@@ -330,10 +291,9 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        // Auth removed
         const db = getDatabase(app);
 
-        let currentUserData = null; 
         let marketData = { tkPrice: 1.50, usdtRate: 280 };
         let adminSelectedChatUser = null; 
 
@@ -348,24 +308,15 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        function getAdminEmail() {
-            return "admin@app.com";
-        }
-
         // --- INITIALIZATION ---
         function initApp() {
-            // Auth Listener
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    checkAndCreateUserInDB(user);
-                } else {
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                    document.getElementById('app-container').classList.add('hidden');
-                    currentUserData = null;
-                }
-            });
+            // Directly show Admin Panel without Auth check
+            document.getElementById('app-container').classList.remove('hidden');
+            // Ensure auth screen is hidden if it exists in DOM (it doesn't but good practice)
+            const authScreen = document.getElementById('auth-screen');
+            if(authScreen) authScreen.classList.add('hidden');
 
-            // Market & Settings Listeners
+            // Market Listeners
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -374,73 +325,7 @@
             });
         }
 
-        // --- USER CREATION IN DB ---
-        function checkAndCreateUserInDB(firebaseUser) {
-            const userRef = ref(db, 'users/' + firebaseUser.uid);
-            get(userRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    currentUserData = snapshot.val();
-                    currentUserData.uid = firebaseUser.uid;
-                    loginSuccess(currentUserData);
-                } else {
-                    const isAdmin = firebaseUser.email === getAdminEmail();
-                    const newUser = {
-                        name: firebaseUser.email.split('@')[0],
-                        email: firebaseUser.email,
-                        role: isAdmin ? "admin" : "user",
-                        isPremium: isAdmin ? true : false,
-                        balanceTK: isAdmin ? 10000 : 0,
-                        createdAt: new Date().toISOString()
-                    };
-                    set(userRef, newUser).then(() => {
-                        currentUserData = newUser;
-                        currentUserData.uid = firebaseUser.uid;
-                        loginSuccess(currentUserData);
-                    });
-                }
-            });
-        }
-
-        // --- AUTH LOGIC ---
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            const btn = document.getElementById('auth-btn');
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (error) {
-                showToast(error.message, "error");
-            } finally {
-                btn.innerText = "Login";
-                btn.disabled = false;
-            }
-        });
-
-        window.logout = () => {
-            signOut(auth).then(() => showToast("Logged out"));
-        };
-
-        // --- APP NAVIGATION & UI ---
-        function loginSuccess(user) {
-            // REDIRECT LOGIC FOR ADMIN.HTML
-            if (user.role === 'user') {
-                showToast("Access Denied. Redirecting to User App...", "error");
-                setTimeout(() => window.location.href = 'index.html', 1500);
-                return;
-            }
-
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            onValue(ref(db, 'users/' + user.uid), (snapshot) => {
-                currentUserData = snapshot.val();
-                currentUserData.uid = user.uid;
-            });
-            showAdminSection('dashboard');
-        }
-
+        // --- APP NAVIGATION ---
         window.showAdminSection = (sectionId) => {
             document.querySelectorAll('#admin-views .section').forEach(el => el.classList.add('hidden'));
             if(sectionId === 'dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
@@ -474,7 +359,8 @@
                 list.innerHTML = "";
                 if(data) {
                     let count = 0;
-                    Object.values(data).reverse().forEach(item => {
+                    Object.keys(data).forEach((key) => {
+                        const item = data[key];
                         if(item.status === 'pending') count++;
                         list.innerHTML += `
                             <tr>
@@ -484,8 +370,8 @@
                                 <td>${item.ref}</td>
                                 <td>
                                     ${item.status === 'pending' ? `
-                                    <button class="btn btn-sm" style="background:var(--success)" onclick="approveDep('${item.key}', '${item.userId}', ${item.amount})"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="rejectDep('${item.key}')"><i class="fas fa-times"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--success)" onclick="approveDep('${key}', '${item.userId}', ${item.amount})"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="rejectDep('${key}')"><i class="fas fa-times"></i></button>
                                     ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
                                 </td>
                             </tr>
@@ -498,45 +384,30 @@
 
         window.approveDep = (key, uid, amount) => {
             const updates = {};
-            // Find the specific deposit to update its status
-            // NOTE: We need to get the parent keys to update. 
-            // Simplified approach for this request:
-            get(ref(db, 'deposits')).then((snapshot) => {
-                let depositKey = null;
-                snapshot.forEach((child) => {
-                    if(child.val().key === key) { // This loop is inefficient in real app but works here
-                         // Actually, push generates keys. Let's assume we pass the key correctly.
-                         // In the HTML above, I passed `item.key`.
-                    }
-                });
-                
-                // Correct Logic with keys:
-                // We need the specific key of the deposit item. 
-                // I've updated HTML to pass key if possible, but let's iterate all deposits to find matching Key if needed.
-                // Better: The snapshot has keys. Let's iterate snapshot to find the object with matching key? No, the object IS the data.
-                // Let's assume we passed the Key. Wait, the object doesn't contain its own key in val().
-                // FIX: I need to pass the key from the loop.
-            });
             
-            // Let's fix the approveDep logic by updating all pending deposits that match (not ideal) 
-            // or use a specific query. For this snippet, let's just update balance.
-            
-            // Re-writing simple logic:
+            // 1. Get current balance
             get(ref(db, 'users/' + uid)).then(snap => {
                 const curBal = snap.val().balanceTK;
+                
+                // 2. Update Balance
                 updates['users/' + uid + '/balanceTK'] = curBal + amount;
                 
-                // Ideally we update deposit status too. 
-                // Since I didn't pass the key in onclick earlier, let's update balance for now.
+                // 3. Update Deposit Status
+                updates['deposits/' + key + '/status'] = 'approved';
+                
                 update(ref(db), updates).then(() => {
                     showToast("Deposit Approved");
-                    // In real app, find deposit key and update status to 'approved'
                 });
             });
         };
         
-        // Better implementation using passed Key if we had it, but for now:
-        window.rejectDep = (uid) => { showToast("Rejected"); };
+        window.rejectDep = (key) => {
+            update(ref(db, 'deposits/' + key), {
+                status: 'rejected'
+            }).then(() => {
+                showToast("Deposit Rejected");
+            });
+        };
         
         function loadAdminUsers() {
             const list = document.getElementById('admin-user-list');
@@ -573,7 +444,7 @@
              list.innerHTML = '<div style="padding:10px;">Chat functionality requires implementing a user list selector.</div>';
         }
 
-        // Start App
+        // Start App Immediately
         initApp();
     </script>
 </body>
