@@ -204,31 +204,31 @@
                 <h2 class="text-orange">Admin Dashboard</h2>
                 
                 <div class="menu-grid" style="margin-top: 20px;">
-                    <div class="menu-card" onclick="showAdminSection('market')">
+                    <div class="menu-card" onclick="window.showAdminSection('market')">
                         <span class="menu-icon text-orange"><i class="fas fa-cogs"></i></span>
                         <div>Settings</div>
                     </div>
-                    <div class="menu-card" onclick="showAdminSection('deposits')">
+                    <div class="menu-card" onclick="window.showAdminSection('deposits')">
                         <span class="menu-icon text-green"><i class="fas fa-check-double"></i></span>
                         <div>Deposits <span id="admin-dep-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
                     </div>
                     
-                    <div class="menu-card" onclick="showAdminSection('withdrawals')">
+                    <div class="menu-card" onclick="window.showAdminSection('withdrawals')">
                         <span class="menu-icon text-blue"><i class="fas fa-money-bill-wave"></i></span>
                         <div>Withdrawals <span id="admin-with-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
                     </div>
 
-                    <div class="menu-card" onclick="showAdminSection('users')">
+                    <div class="menu-card" onclick="window.showAdminSection('users')">
                         <span class="menu-icon text-blue"><i class="fas fa-users"></i></span>
                         <div>Users</div>
                     </div>
-                    <div class="menu-card" onclick="showAdminSection('news')">
+                    <div class="menu-card" onclick="window.showAdminSection('news')">
                         <span class="menu-icon"><i class="fas fa-newspaper"></i></span>
                         <div>News</div>
                     </div>
                 </div>
 
-                <div class="menu-card" onclick="showAdminSection('chat')" style="text-align: left; margin-bottom: 20px;">
+                <div class="menu-card" onclick="window.showAdminSection('chat')" style="text-align: left; margin-bottom: 20px;">
                     <span class="menu-icon"><i class="fas fa-comments"></i></span>
                     <div>Live Support Chats</div>
                 </div>
@@ -236,7 +236,7 @@
 
             <!-- Admin: Market & Settings -->
             <section id="admin-market" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">App Settings</h3>
                 
                 <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Market Rates</div>
@@ -281,12 +281,12 @@
                     <input type="text" id="admin-qr-url" placeholder="./qr.png">
                 </div>
 
-                <button class="btn" onclick="updateAdminSettings()">Save All Settings</button>
+                <button class="btn" onclick="window.updateAdminSettings()">Save All Settings</button>
             </section>
 
             <!-- Admin: Deposits -->
             <section id="admin-deposits" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">Deposit Approvals</h3>
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
@@ -307,7 +307,7 @@
 
             <!-- NEW SECTION: Withdrawals -->
             <section id="admin-withdrawals" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">Withdrawal Requests</h3>
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
@@ -329,7 +329,7 @@
 
             <!-- Admin: Users -->
             <section id="admin-users" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">User Management</h3>
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
@@ -350,19 +350,19 @@
 
             <!-- Admin: News -->
             <section id="admin-news" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">Post News</h3>
                 <p style="color:#777; font-size:0.8rem; margin-bottom:10px;">Posting this will delete old news.</p>
                 <div class="input-group">
                     <label>Headline</label>
                     <input type="text" id="admin-news-headline">
                 </div>
-                <button class="btn" onclick="postNews()">Post Update</button>
+                <button class="btn" onclick="window.postNews()">Post Update</button>
             </section>
 
              <!-- Admin: Chat -->
              <section id="admin-chat" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">User Chats <small style="color:red; font-size:0.7rem;">(Real-time)</small></h3>
                 
                 <div class="chat-container">
@@ -378,7 +378,7 @@
                          <div class="chat-messages" id="admin-chat-messages"></div>
                          <div class="chat-input-area">
                              <input type="text" id="admin-chat-input" placeholder="Reply...">
-                             <button class="btn btn-sm" onclick="adminSendReply()">Reply</button>
+                             <button class="btn btn-sm" onclick="window.adminSendReply()">Reply</button>
                          </div>
                     </div>
                 </div>
@@ -462,6 +462,7 @@
             });
         }
 
+        // EXPLICITLY BIND FUNCTIONS TO WINDOW FOR HTML onclick handlers
         window.showAdminSection = (sectionId) => {
             document.querySelectorAll('#admin-views .section').forEach(el => el.classList.add('hidden'));
             if(sectionId === 'dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
@@ -531,8 +532,8 @@
                                 <td>${item.ref}</td>
                                 <td>
                                     ${item.status === 'pending' ? `
-                                    <button class="btn btn-sm" style="background:var(--success)" onclick="approveDep('${key}', '${item.userId}', ${item.amount})"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="rejectDep('${key}')"><i class="fas fa-times"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--success)" onclick="window.approveDep('${key}', '${item.userId}', ${item.amount})"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="window.rejectDep('${key}')"><i class="fas fa-times"></i></button>
                                     ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
                                 </td>
                             </tr>
@@ -564,71 +565,63 @@
             });
         };
         
-        // UPDATED: Load Withdrawals with Safe Event Binding
+        // FIXED: Simplified Rendering using String HTML and Window scope
         function loadAdminWithdrawals() {
             const list = document.getElementById('admin-withdraw-list');
-            
+            if(!list) return; // Safety check
+
             onValue(ref(db, 'withdrawals'), (snapshot) => {
                 const data = snapshot.val();
-                list.innerHTML = ""; // Clear current list
-                let count = 0;
+                list.innerHTML = ""; // Clear list
                 
-                if(data) {
-                    Object.keys(data).forEach((key) => {
-                        const item = data[key];
-                        if(item.status === 'pending') {
-                            count++;
-                        }
-
-                        const row = document.createElement('tr');
-                        
-                        // Build action buttons HTML
-                        let actionButtons = '';
-                        if (item.status === 'pending') {
-                            actionButtons = `
-                                <button class="btn btn-sm" style="background:var(--success)" id="btn-approve-${key}"><i class="fas fa-check"></i></button>
-                                <button class="btn btn-sm" style="background:var(--danger)" id="btn-reject-${key}"><i class="fas fa-times"></i></button>
-                            `;
-                        } else {
-                            actionButtons = `<span class="status-badge status-${item.status}">${item.status}</span>`;
-                        }
-
-                        row.innerHTML = `
-                            <td>${item.userEmail}</td>
-                            <td>${item.method}</td>
-                            <td>${item.account}</td>
-                            <td>${item.amount.toFixed(2)}</td>
-                            <td>${item.total.toFixed(2)}</td>
-                            <td>${actionButtons}</td>
-                        `;
-                        
-                        list.appendChild(row);
-
-                        // Attach event listeners safely using closure
-                        if (item.status === 'pending') {
-                            document.getElementById(`btn-approve-${key}`).onclick = () => approveWithdraw(key);
-                            document.getElementById(`btn-reject-${key}`).onclick = () => rejectWithdraw(key, item.userId, item.total);
-                        }
-                    });
-                    document.getElementById('admin-with-pending-count').innerText = count;
-                } else {
-                    list.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#555;">No withdrawal requests found.</td></tr>';
+                if (!data) {
+                    list.innerHTML = "<tr><td colspan='6' style='text-align:center; color:#777;'>No requests found.</td></tr>";
                     document.getElementById('admin-with-pending-count').innerText = 0;
+                    return;
                 }
+
+                let count = 0;
+                let html = "";
+
+                Object.keys(data).forEach((key) => {
+                    const item = data[key];
+                    if(!item) return; // Skip if item is null/undefined
+
+                    if (item.status === 'pending') count++;
+
+                    html += `
+                        <tr>
+                            <td>${item.userEmail || 'Unknown'}</td>
+                            <td>${item.method || 'Unknown'}</td>
+                            <td>${item.account || 'Unknown'}</td>
+                            <td>${(item.amount || 0).toFixed(2)}</td>
+                            <td>${(item.total || 0).toFixed(2)}</td>
+                            <td>
+                                ${item.status === 'pending' ? `
+                                    <button class="btn btn-sm" style="background:var(--success)" onclick="window.approveWithdraw('${key}')"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="window.rejectWithdraw('${key}', '${item.userId}', ${item.total})"><i class="fas fa-times"></i></button>
+                                ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                list.innerHTML = html;
+                document.getElementById('admin-with-pending-count').innerText = count;
             });
         }
 
-        // UPDATED: Approve Withdrawal - Status only
+        // FIXED: Simple Status Update (Balance already deducted by user)
         window.approveWithdraw = (key) => {
             update(ref(db, 'withdrawals/' + key), {
                 status: 'approved'
             }).then(() => {
                 showToast("Withdrawal Approved");
-                // List will auto-refresh due to onValue
+                // List auto-refreshes via onValue
             });
         };
 
-        // UPDATED: Reject Withdrawal - Refund balance
+        // FIXED: Refund Balance on Reject
         window.rejectWithdraw = (key, uid, totalRefundAmount) => {
             get(ref(db, 'users/' + uid)).then(snap => {
                 if(!snap.exists()) return showToast("User not found", "error");
@@ -642,7 +635,7 @@
                 
                 update(ref(db), updates).then(() => {
                     showToast("Withdrawal Rejected & Refunded");
-                    // List will auto-refresh
+                    // List auto-refreshes
                 });
             });
         };
@@ -666,7 +659,7 @@
                                 <td>${u.password || '---'}</td>
                                 <td>${u.balanceTK}</td>
                                 <td>
-                                    <button class="btn btn-sm" style="${banBtnStyle}" onclick="banUser('${uid}', ${isBanned})">${banText}</button>
+                                    <button class="btn btn-sm" style="${banBtnStyle}" onclick="window.banUser('${uid}', ${isBanned})">${banText}</button>
                                 </td>
                             </tr>
                         `;
