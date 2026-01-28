@@ -65,7 +65,7 @@
         #toast-container {
             position: fixed;
             top: 20px;
-            right:  20px;
+            right: 20px;
             z-index: 9999;
         }
         .toast {
@@ -135,6 +135,24 @@
         }
         .chat-user-item:hover { background: var(--primary); }
         
+        /* Unread Badge Style */
+        .unread-badge {
+            color: #ff0000;
+            font-size: 10px;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
         .chat-box {
             flex: 2;
             background: var(--bg-card);
@@ -159,7 +177,8 @@
         .status-banned { background: #333; color: red; border: 1px solid red; }
 
         .settings-divider {
-            margin: 20px 0 10px 0; border-bottom: 1px solid #333;
+            margin: 20px 0 10px 0;
+            border-bottom: 1px solid #333;
             padding-bottom: 5px;
             color: var(--primary);
             font-size: 0.9rem;
@@ -185,14 +204,20 @@
                 <h2 class="text-orange">Admin Dashboard</h2>
                 
                 <div class="menu-grid" style="margin-top: 20px;">
+                    <div class="menu-card" onclick="showAdminSection('market')">
+                        <span class="menu-icon text-orange"><i class="fas fa-cogs"></i></span>
+                        <div>Settings</div>
+                    </div>
                     <div class="menu-card" onclick="showAdminSection('deposits')">
                         <span class="menu-icon text-green"><i class="fas fa-check-double"></i></span>
                         <div>Deposits <span id="admin-dep-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
                     </div>
+                    
                     <div class="menu-card" onclick="showAdminSection('withdrawals')">
                         <span class="menu-icon text-blue"><i class="fas fa-money-bill-wave"></i></span>
-                        <div>Withdrawals <span id="admin-wd-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
+                        <div>Withdrawals <span id="admin-with-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
                     </div>
+
                     <div class="menu-card" onclick="showAdminSection('users')">
                         <span class="menu-icon text-blue"><i class="fas fa-users"></i></span>
                         <div>Users</div>
@@ -202,68 +227,10 @@
                         <div>News</div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Admin: Withdraws (Fully Fixed) -->
-            <section id="admin-withdrawals" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
-                <h3 class="text-orange" style="margin-top: 15px;">Withdraw Approvals</h3>
-                <div style="overflow-x: auto;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Amount</th>
-                                <th>Received (PKR)</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-withdraw-list">
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Admin: Deposits -->
-            <section id="admin-deposits" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
-                <h3 class="text-orange" style="margin-top: 15px;">Deposit Approvals</h3>
-                <div style="overflow-x: auto;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Amount</th>
-                                <th>Ref</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-deposit-list">
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Admin: Users -->
-            <section id="admin-users" class="section hidden">
-                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
-                <h3 class="text-orange" style="margin-top: 15px;">User Management</h3>
-                <div style="overflow-x: auto;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Password</th>
-                                <th>Balance</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-user-list">
-                        </tbody>
-                    </table>
+                <div class="menu-card" onclick="showAdminSection('chat')" style="text-align: left; margin-bottom: 20px;">
+                    <span class="menu-icon"><i class="fas fa-comments"></i></span>
+                    <div>Live Support Chats</div>
                 </div>
             </section>
 
@@ -290,7 +257,6 @@
                     <input type="number" id="admin-min-withdraw">
                 </div>
 
-                <!-- NEW: Withdraw Fee -->
                 <div class="input-group">
                     <label>Withdraw Fee (%)</label>
                     <input type="number" id="admin-withdraw-fee" step="0.01">
@@ -316,6 +282,70 @@
                 </div>
 
                 <button class="btn" onclick="updateAdminSettings()">Save All Settings</button>
+            </section>
+
+            <!-- Admin: Deposits -->
+            <section id="admin-deposits" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Deposit Approvals</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Method</th>
+                                <th>Amount</th>
+                                <th>Ref</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-deposit-list">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- NEW SECTION: Withdrawals -->
+            <section id="admin-withdrawals" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Withdrawal Requests</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Method</th>
+                                <th>Acc/No</th>
+                                <th>Amount</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-withdraw-list">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: Users -->
+            <section id="admin-users" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">User Management</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Balance</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-user-list">
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Admin: News -->
@@ -357,7 +387,6 @@
         </main>
     </div>
 
-    <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { 
@@ -370,7 +399,6 @@
             set
         } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
             authDomain: "injector-c964a.firebaseapp.com",
@@ -413,11 +441,12 @@
                 const data = snapshot.val();
                 if (data) {
                     appSettings = data;
-                    // Update UI inputs
                     const minInput = document.getElementById('admin-min-withdraw');
                     if(minInput) minInput.value = appSettings.minWithdraw || 50;
 
-                    // Update Deposit Inputs
+                    const feeInput = document.getElementById('admin-withdraw-fee');
+                    if(feeInput) feeInput.value = (appSettings.withdrawFee * 100) || 5;
+
                     const easypaisaInput = document.getElementById('admin-easypaisa');
                     if(easypaisaInput) easypaisaInput.value = appSettings.easypaisa || '';
                     
@@ -431,10 +460,6 @@
                     if(qrInput) qrInput.value = appSettings.qrUrl || './qr.png';
                 }
             });
-
-            // Init Listeners
-            loadAdminDeposits();
-            loadAdminWithdrawals(); // ADDED THIS
         }
 
         window.showAdminSection = (sectionId) => {
@@ -453,8 +478,6 @@
             document.getElementById('admin-usdt-rate').value = marketData.usdtRate;
             document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
             document.getElementById('admin-withdraw-fee').value = (appSettings.withdrawFee * 100) || 5;
-            
-            // Load Deposit Inputs
             document.getElementById('admin-easypaisa').value = appSettings.easypaisa || '0300-1234567';
             document.getElementById('admin-jazzcash').value = appSettings.jazzcash || '0321-7654321';
             document.getElementById('admin-tillid').value = appSettings.tillid || '03XX-XXXXXXX (Raast)';
@@ -466,25 +489,20 @@
             const rate = parseFloat(document.getElementById('admin-usdt-rate').value);
             const minWithdraw = parseFloat(document.getElementById('admin-min-withdraw').value);
             
-            // Get Deposit Values
             const easypaisa = document.getElementById('admin-easypaisa').value;
             const jazzcash = document.getElementById('admin-jazzcash').value;
             const tillid = document.getElementById('admin-tillid').value;
             const qrUrl = document.getElementById('admin-qr-url').value;
             
-            // Get Withdraw Fee (Value is e.g. 5)
             const withdrawFeePercent = parseFloat(document.getElementById('admin-withdraw-fee').value);
             const withdrawFeeDecimal = withdrawFeePercent / 100;
 
             const updates = {};
-            // Update Market
             updates['market/tkPrice'] = price;
             updates['market/usdtRate'] = rate;
             updates['market/mode'] = 'manual';
-
-            // Update Settings (Withdraw + Deposit)
             updates['settings/minWithdraw'] = minWithdraw;
-            updates['settings/withdrawFee'] = withdrawFeeDecimal; // Save Decimal
+            updates['settings/withdrawFee'] = withdrawFeeDecimal; 
             updates['settings/easypaisa'] = easypaisa;
             updates['settings/jazzcash'] = jazzcash;
             updates['settings/tillid'] = tillid;
@@ -495,89 +513,6 @@
             });
         }
 
-        // --- ADMIN WITHDRAWALS (FUNCTIONAL) ---
-        function loadAdminWithdrawals() {
-            const list = document.getElementById('admin-withdraw-list');
-            onValue(ref(db, 'withdrawals'), (snapshot) => {
-                const data = snapshot.val();
-                list.innerHTML = "";
-                if(data) {
-                    Object.keys(data).forEach((key) => {
-                        const item = data[key];
-                        // Calculate PKR Display (TK Price * Rate * USDT Rate * USDT (Approx for display))
-                        const tkPrice = marketData.tkPrice || 1.0;
-                        const usdtRate = marketData.usdtRate || 280;
-                        const displayPKR = (item.amount * tkPrice * usdtRate).toFixed(2);
-
-                        list.innerHTML += `
-                            <tr>
-                                <td>${item.userEmail}</td>
-                                <td>${item.method}</td>
-                                <td>${item.amount.toFixed(2)} TK</td>
-                                <td>${displayPKR}</td>
-                                <td>${item.status}</td>
-                                <td>
-                                    <button class="btn btn-sm" onclick="handleWithdrawAction('${key}')">View</button>
-                                    <!-- Approve -->
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-            });
-        }
-
-        // NEW: Handle Withdraw Action (Approve/Reject)
-        window.handleWithdrawAction = (key) => {
-            // Show details modal or switch view? For now let's implement simple logic inside the table to just show data for reference, actual action is separate below.
-            const itemRef = ref(db, 'withdrawals/' + key);
-            itemRef.once('value', (item => {
-                alert(`Ref: ${item.ref} | Method: ${item.method} | User: ${item.userEmail}`);
-            });
-        }
-
-        window.approveWithdraw = (key, uid, amount, pkrValue) => {
-            const updates = {};
-            
-            // 1. Get current balance
-            get(ref(db, 'users/' + uid)).then(snap => {
-                const curBal = snap.val().balanceTK;
-                
-                // 2. Logic: Admin Withdraw Fee check (Admin 0%, User Fee 5%)
-                const isPremium = false; // In this specific function, we read 'users/role'. If admin, fee 0%. Else 5% (for simplicity here, checking admin email via string)
-                if (uid === getAdminEmail()) {
-                    updates['users/' + uid + '/balanceTK'] = curBal + amount; // Full amount
-                updates['withdrawals/' + key + '/pkrAmount'] = pkrValue; // Log specific PKR amount
-                updates['withdrawals/' + key + '/status'] = 'approved';
-            } else {
-                // User (Fee = 5%)
-                const feeRate = 0.05;
-                const fee = amount * feeRate;
-                const netTk = amount - fee;
-                
-                // Net Amount * Price = PKR Value
-                const netPkrVal = netTk * marketData.tkPrice * marketData.usdtRate;
-
-                updates['users/' + uid + '/balanceTK'] = curBal - netTk;
-                updates['withdrawals/' + key + '/netAmount'] = netTk;
-                updates['withdrawals/' + key + '/pkrAmount'] = netPkrVal;
-                updates['withdrawals/' + key + '/status'] = 'approved';
-            }
-
-            update(ref(db), updates).then(() => {
-                showToast("Withdraw Approved");
-            });
-        };
-
-        window.rejectWithdraw = (key) => {
-            update(ref(db, 'withdrawals/' + key), {
-                status: 'rejected'
-            }).then(() => {
-                showToast("Withdraw Rejected");
-            });
-        };
-
-        // --- DEPOSITS (Same as before) ---
         function loadAdminDeposits() {
             const list = document.getElementById('admin-deposit-list');
             onValue(ref(db, 'deposits'), (snapshot) => {
@@ -620,12 +555,79 @@
                 });
             });
         };
-
+        
         window.rejectDep = (key) => {
             update(ref(db, 'deposits/' + key), {
                 status: 'rejected'
             }).then(() => {
                 showToast("Deposit Rejected");
+            });
+        };
+        
+        function loadAdminWithdrawals() {
+            const list = document.getElementById('admin-withdraw-list');
+            onValue(ref(db, 'withdrawals'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                let count = 0;
+                if(data) {
+                    Object.keys(data).forEach((key) => {
+                        const item = data[key];
+                        if(item.status === 'pending') count++;
+                        
+                        // IMPORTANT: Pass key, userId, and totalAmount (to refund)
+                        const onClickReject = `rejectWithdraw('${key}', '${item.userId}', ${item.total})`;
+                        const onClickApprove = `approveWithdraw('${key}')`; // Only needs key to update status
+
+                        list.innerHTML += `
+                            <tr>
+                                <td>${item.userEmail}</td>
+                                <td>${item.method}</td>
+                                <td>${item.account}</td>
+                                <td>${item.amount.toFixed(2)}</td>
+                                <td>${item.total.toFixed(2)}</td>
+                                <td>
+                                    ${item.status === 'pending' ? `
+                                    <button class="btn btn-sm" style="background:var(--success)" onclick="${onClickApprove}"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="${onClickReject}"><i class="fas fa-times"></i></button>
+                                    ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.getElementById('admin-with-pending-count').innerText = count;
+                }
+            });
+        }
+
+        // UPDATED: Approve Withdraw - Balance already deducted, just approve status
+        window.approveWithdraw = (key) => {
+            update(ref(db, 'withdrawals/' + key), {
+                status: 'approved'
+            }).then(() => {
+                showToast("Withdrawal Approved");
+            });
+        };
+
+        // UPDATED: Reject Withdraw - REFUND BALANCE
+        window.rejectWithdraw = (key, uid, totalRefundAmount) => {
+            // 1. Fetch current user balance
+            get(ref(db, 'users/' + uid)).then(snap => {
+                if(!snap.exists()) return showToast("User not found", "error");
+                
+                const curBal = snap.val().balanceTK;
+                const newBal = curBal + totalRefundAmount;
+
+                // 2. Prepare updates: Refund balance + Change status
+                const updates = {};
+                updates['users/' + uid + '/balanceTK'] = newBal;
+                updates['withdrawals/' + key + '/status'] = 'rejected';
+                
+                // 3. Execute
+                update(ref(db), updates).then(() => {
+                    showToast("Withdrawal Rejected & Refunded");
+                    loadAdminWithdrawals(); // Refresh list to show new status
+                });
             });
         };
         
@@ -683,8 +685,7 @@
                 });
             }
         }
-
-        // --- CHAT FUNCTIONALITY ---
+        
         function loadAdminChatList() {
             const list = document.getElementById('admin-chat-list');
             list.innerHTML = '<div style="padding:10px; text-align:center; color:#777;">Loading users...</div>';
@@ -697,12 +698,30 @@
                         const u = data[uid];
                         const item = document.createElement('div');
                         item.className = 'chat-user-item';
-                        item.innerHTML = `<span><i class="fas fa-user-circle"></i> ${u.name}</span> <small style="color:var(--primary)">Chat</small>`;
+                        item.id = `chat-user-${uid}`; 
+                        item.innerHTML = `<span><i class="fas fa-user-circle"></i> ${u.name}</span>`;
                         item.onclick = () => selectAdminChatUser(uid, u.name);
                         list.appendChild(item);
+
+                        const chatRef = ref(db, 'chats/' + uid);
+                        onValue(chatRef, (chatSnap) => {
+                            const chatData = chatSnap.val();
+                            if(chatData) {
+                                const msgKeys = Object.keys(chatData);
+                                const lastKey = msgKeys[msgKeys.length - 1];
+                                const lastMsg = chatData[lastKey];
+
+                                if(lastMsg.sender !== 'admin' && adminSelectedChatUser !== uid) {
+                                    const badgeSpan = `<span class="unread-badge"></span>`;
+                                    const existingBadge = document.getElementById(`chat-user-${uid}`).querySelector('.unread-badge');
+                                    if(!existingBadge) document.getElementById(`chat-user-${uid}`).innerHTML += badgeSpan;
+                                } else {
+                                    const existingBadge = document.getElementById(`chat-user-${uid}`).querySelector('.unread-badge');
+                                    if(existingBadge) existingBadge.remove();
+                                }
+                            }
+                        });
                     });
-                } else {
-                    list.innerHTML = '<div style="padding:10px; text-align:center; color:#777;">No users found.</div>';
                 }
             });
         }
@@ -710,6 +729,13 @@
         function selectAdminChatUser(uid, name) {
             adminSelectedChatUser = uid;
             document.getElementById('chatting-with-name').innerText = name;
+            
+            const userItem = document.getElementById(`chat-user-${uid}`);
+            if(userItem) {
+                const badge = userItem.querySelector('.unread-badge');
+                if(badge) badge.remove();
+            }
+
             document.getElementById('admin-chat-window').classList.remove('hidden');
 
             const chatRef = ref(db, 'chats/' + uid);
@@ -750,4 +776,4 @@
         initApp();
     </script>
 </body>
-</html> 
+</html>
