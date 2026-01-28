@@ -564,69 +564,85 @@
             });
         };
         
+        // UPDATED: Load Withdrawals with Safe Event Binding
         function loadAdminWithdrawals() {
             const list = document.getElementById('admin-withdraw-list');
+            
             onValue(ref(db, 'withdrawals'), (snapshot) => {
                 const data = snapshot.val();
-                list.innerHTML = "";
+                list.innerHTML = ""; // Clear current list
                 let count = 0;
+                
                 if(data) {
                     Object.keys(data).forEach((key) => {
                         const item = data[key];
-                        if(item.status === 'pending') count++;
-                        
-                        // IMPORTANT: Pass key, userId, and totalAmount (to refund)
-                        const onClickReject = `rejectWithdraw('${key}', '${item.userId}', ${item.total})`;
-                        const onClickApprove = `approveWithdraw('${key}')`; // Only needs key to update status
+                        if(item.status === 'pending') {
+                            count++;
+                        }
 
-                        list.innerHTML += `
-                            <tr>
-                                <td>${item.userEmail}</td>
-                                <td>${item.method}</td>
-                                <td>${item.account}</td>
-                                <td>${item.amount.toFixed(2)}</td>
-                                <td>${item.total.toFixed(2)}</td>
-                                <td>
-                                    ${item.status === 'pending' ? `
-                                    <button class="btn btn-sm" style="background:var(--success)" onclick="${onClickApprove}"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="${onClickReject}"><i class="fas fa-times"></i></button>
-                                    ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
-                                </td>
-                            </tr>
+                        const row = document.createElement('tr');
+                        
+                        // Build action buttons HTML
+                        let actionButtons = '';
+                        if (item.status === 'pending') {
+                            actionButtons = `
+                                <button class="btn btn-sm" style="background:var(--success)" id="btn-approve-${key}"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm" style="background:var(--danger)" id="btn-reject-${key}"><i class="fas fa-times"></i></button>
+                            `;
+                        } else {
+                            actionButtons = `<span class="status-badge status-${item.status}">${item.status}</span>`;
+                        }
+
+                        row.innerHTML = `
+                            <td>${item.userEmail}</td>
+                            <td>${item.method}</td>
+                            <td>${item.account}</td>
+                            <td>${item.amount.toFixed(2)}</td>
+                            <td>${item.total.toFixed(2)}</td>
+                            <td>${actionButtons}</td>
                         `;
+                        
+                        list.appendChild(row);
+
+                        // Attach event listeners safely using closure
+                        if (item.status === 'pending') {
+                            document.getElementById(`btn-approve-${key}`).onclick = () => approveWithdraw(key);
+                            document.getElementById(`btn-reject-${key}`).onclick = () => rejectWithdraw(key, item.userId, item.total);
+                        }
                     });
                     document.getElementById('admin-with-pending-count').innerText = count;
+                } else {
+                    list.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#555;">No withdrawal requests found.</td></tr>';
+                    document.getElementById('admin-with-pending-count').innerText = 0;
                 }
             });
         }
 
-        // UPDATED: Approve Withdraw - Balance already deducted, just approve status
+        // UPDATED: Approve Withdrawal - Status only
         window.approveWithdraw = (key) => {
             update(ref(db, 'withdrawals/' + key), {
                 status: 'approved'
             }).then(() => {
                 showToast("Withdrawal Approved");
+                // List will auto-refresh due to onValue
             });
         };
 
-        // UPDATED: Reject Withdraw - REFUND BALANCE
+        // UPDATED: Reject Withdrawal - Refund balance
         window.rejectWithdraw = (key, uid, totalRefundAmount) => {
-            // 1. Fetch current user balance
             get(ref(db, 'users/' + uid)).then(snap => {
                 if(!snap.exists()) return showToast("User not found", "error");
                 
                 const curBal = snap.val().balanceTK;
                 const newBal = curBal + totalRefundAmount;
 
-                // 2. Prepare updates: Refund balance + Change status
                 const updates = {};
                 updates['users/' + uid + '/balanceTK'] = newBal;
                 updates['withdrawals/' + key + '/status'] = 'rejected';
                 
-                // 3. Execute
                 update(ref(db), updates).then(() => {
                     showToast("Withdrawal Rejected & Refunded");
-                    loadAdminWithdrawals(); // Refresh list to show new status
+                    // List will auto-refresh
                 });
             });
         };
