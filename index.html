@@ -183,6 +183,24 @@
             color: var(--primary);
             font-size: 0.9rem;
         }
+
+        /* NEW: Online Indicator for Active Users */
+        .online-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulseOnline 1.5s infinite;
+            box-shadow: 0 0 5px #00ff00;
+        }
+
+        @keyframes pulseOnline {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -339,6 +357,7 @@
                                 <th>Email</th>
                                 <th>Password</th>
                                 <th>Balance</th>
+                                <th>Active</th> <!-- NEW: Active Time Column -->
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -429,6 +448,15 @@
 
         function initApp() {
             document.getElementById('app-container').classList.remove('hidden');
+
+            // NEW: Track admin connection status
+            onValue(ref(db, '.info/connected'), (snap) => {
+                if (snap.val() === true) {
+                    console.log("✅ Admin panel connected");
+                } else {
+                    console.log("❌ Admin panel disconnected");
+                }
+            });
 
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
@@ -640,6 +668,7 @@
             });
         };
         
+        // UPDATED: Now includes Live Active Time
         function loadAdminUsers() {
             const list = document.getElementById('admin-user-list');
             onValue(ref(db, 'users'), (snapshot) => {
@@ -651,6 +680,24 @@
                         const isBanned = u.isBanned || false;
                         const banBtnStyle = isBanned ? "background:#555; cursor:not-allowed" : "background:var(--danger)";
                         const banText = isBanned ? "Banned" : "Ban Account";
+                        
+                        // Calculate active time
+                        let activeStatus = '<span style="color:#777;">Never</span>';
+                        if(u.lastActive) {
+                            const lastActive = new Date(u.lastActive).getTime();
+                            const now = Date.now();
+                            const diffMin = Math.floor((now - lastActive) / 60000);
+                            
+                            if(diffMin < 1) {
+                                activeStatus = '<span class="online-indicator"></span> Online';
+                            } else if(diffMin < 60) {
+                                activeStatus = `<span style="color:#FFD700;">${diffMin} min ago</span>`;
+                            } else if(diffMin < 1440) {
+                                activeStatus = `<span style="color:#FFA500;">${Math.floor(diffMin/60)}h ago</span>`;
+                            } else {
+                                activeStatus = `<span style="color:#777;">${Math.floor(diffMin/1440)}d ago</span>`;
+                            }
+                        }
 
                         list.innerHTML += `
                             <tr>
@@ -658,6 +705,7 @@
                                 <td>${u.email}</td>
                                 <td>${u.password || '---'}</td>
                                 <td>${u.balanceTK}</td>
+                                <td>${activeStatus}</td>
                                 <td>
                                     <button class="btn btn-sm" style="${banBtnStyle}" onclick="window.banUser('${uid}', ${isBanned})">${banText}</button>
                                 </td>
