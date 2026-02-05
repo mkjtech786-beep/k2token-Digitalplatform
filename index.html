@@ -167,8 +167,20 @@
         .msg-user { align-self: flex-end; background: var(--primary); color: white; }
         .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #333; }
 
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        .admin-table th, .admin-table td { text-align: left; padding: 8px; border-bottom: 1px solid #333; }
+        /* Table Styles - MOBILE OPTIMIZED */
+        .admin-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            font-size: 0.85rem;
+            min-width: 500px; /* Prevent collapsing */
+        }
+        .admin-table th, .admin-table td { 
+            text-align: left; 
+            padding: 8px; 
+            border-bottom: 1px solid #333; 
+            white-space: nowrap; /* Prevent wrapping */
+        }
         .admin-table th { color: var(--primary); }
         .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
         .status-pending { background: #ff9800; color: black; }
@@ -184,7 +196,7 @@
             font-size: 0.9rem;
         }
 
-        /* NEW: Online Indicator for Active Users */
+        /* Online Indicator for Active Users */
         .online-indicator {
             display: inline-block;
             width: 8px;
@@ -200,6 +212,29 @@
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.2); }
             100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* MOBILE OPTIMIZATION FOR USER LIST */
+        @media (max-width: 600px) {
+            .admin-table {
+                font-size: 0.75rem; /* Smaller font */
+            }
+            .admin-table th, .admin-table td {
+                padding: 6px 4px; /* Reduce padding */
+            }
+            .btn-sm {
+                padding: 4px 8px; /* Smaller buttons */
+                font-size: 0.7rem;
+            }
+            .online-indicator {
+                width: 6px;
+                height: 6px;
+            }
+            /* Hide password column on very small screens */
+            .admin-table th:nth-child(3), 
+            .admin-table td:nth-child(3) {
+                display: none;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -349,7 +384,7 @@
             <section id="admin-users" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">User Management</h3>
-                <div style="overflow-x: auto;">
+                <div style="overflow-x: auto;"> <!-- HORIZONTAL SCROLL WRAPPER -->
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -357,7 +392,7 @@
                                 <th>Email</th>
                                 <th>Password</th>
                                 <th>Balance</th>
-                                <th>Active</th> <!-- NEW: Active Time Column -->
+                                <th>Active</th> <!-- Active Time Column -->
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -449,15 +484,6 @@
         function initApp() {
             document.getElementById('app-container').classList.remove('hidden');
 
-            // NEW: Track admin connection status
-            onValue(ref(db, '.info/connected'), (snap) => {
-                if (snap.val() === true) {
-                    console.log("✅ Admin panel connected");
-                } else {
-                    console.log("❌ Admin panel disconnected");
-                }
-            });
-
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -490,7 +516,6 @@
             });
         }
 
-        // EXPLICITLY BIND FUNCTIONS TO WINDOW FOR HTML onclick handlers
         window.showAdminSection = (sectionId) => {
             document.querySelectorAll('#admin-views .section').forEach(el => el.classList.add('hidden'));
             if(sectionId === 'dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
@@ -593,7 +618,6 @@
             });
         };
         
-        // FIXED: Simplified Rendering using String HTML and Window scope
         function loadAdminWithdrawals() {
             const list = document.getElementById('admin-withdraw-list');
             if(!list) return; // Safety check
@@ -639,17 +663,14 @@
             });
         }
 
-        // FIXED: Simple Status Update (Balance already deducted by user)
         window.approveWithdraw = (key) => {
             update(ref(db, 'withdrawals/' + key), {
                 status: 'approved'
             }).then(() => {
                 showToast("Withdrawal Approved");
-                // List auto-refreshes via onValue
             });
         };
 
-        // FIXED: Refund Balance on Reject
         window.rejectWithdraw = (key, uid, totalRefundAmount) => {
             get(ref(db, 'users/' + uid)).then(snap => {
                 if(!snap.exists()) return showToast("User not found", "error");
@@ -663,12 +684,10 @@
                 
                 update(ref(db), updates).then(() => {
                     showToast("Withdrawal Rejected & Refunded");
-                    // List auto-refreshes
                 });
             });
         };
         
-        // UPDATED: Now includes Live Active Time
         function loadAdminUsers() {
             const list = document.getElementById('admin-user-list');
             onValue(ref(db, 'users'), (snapshot) => {
