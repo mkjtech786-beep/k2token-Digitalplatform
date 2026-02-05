@@ -292,15 +292,37 @@
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">App Settings</h3>
                 
-                <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Market Rates</div>
-                
+                <!-- Rate Mode Selector -->
                 <div class="input-group">
-                    <label>TK Price (USDT) - Internal Rate</label>
-                    <input type="number" id="admin-tk-price">
+                    <label>Rate Mode</label>
+                    <select id="admin-rate-mode" onchange="window.toggleRateMode()">
+                        <option value="manual">Manual</option>
+                        <option value="auto">Auto</option>
+                    </select>
                 </div>
-                <div class="input-group">
-                    <label>USDT to PKR Rate (For Display)</label>
-                    <input type="number" id="admin-usdt-rate">
+
+                <!-- Manual Controls -->
+                <div id="manual-controls">
+                    <div class="input-group">
+                        <label>TK Price (USDT) - Internal Rate</label>
+                        <input type="number" id="admin-tk-price" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>USDT to PKR Rate (For Display)</label>
+                        <input type="number" id="admin-usdt-rate" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Auto Controls (Hidden by default) -->
+                <div id="auto-controls" class="hidden">
+                    <div class="input-group">
+                        <label>Fluctuation Range (PKR)</label>
+                        <input type="number" id="admin-auto-range" value="100" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Update Interval (seconds)</label>
+                        <input type="number" id="admin-auto-interval" value="30" step="1">
+                    </div>
                 </div>
 
                 <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Wallet Settings</div>
@@ -481,6 +503,21 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // ======== TOGGLE RATE MODE FUNCTION ========
+        window.toggleRateMode = () => {
+            const mode = document.getElementById('admin-rate-mode').value;
+            const manualControls = document.getElementById('manual-controls');
+            const autoControls = document.getElementById('auto-controls');
+            
+            if (mode === 'auto') {
+                manualControls.classList.add('hidden');
+                autoControls.classList.remove('hidden');
+            } else {
+                manualControls.classList.remove('hidden');
+                autoControls.classList.add('hidden');
+            }
+        }
+
         function initApp() {
             document.getElementById('app-container').classList.remove('hidden');
 
@@ -488,30 +525,29 @@
                 const data = snapshot.val();
                 if (data) {
                     marketData = data;
+                    
+                    // Mode set karein
+                    document.getElementById('admin-rate-mode').value = data.mode || 'manual';
+                    document.getElementById('admin-auto-range').value = data.autoRange || 100;
+                    document.getElementById('admin-auto-interval').value = data.autoInterval || 30;
+                    
+                    // UI toggle karein
+                    toggleRateMode();
                 }
             });
 
             onValue(ref(db, 'settings'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    appSettings = data;
-                    const minInput = document.getElementById('admin-min-withdraw');
-                    if(minInput) minInput.value = appSettings.minWithdraw || 50;
-
-                    const feeInput = document.getElementById('admin-withdraw-fee');
-                    if(feeInput) feeInput.value = (appSettings.withdrawFee * 100) || 5;
-
-                    const easypaisaInput = document.getElementById('admin-easypaisa');
-                    if(easypaisaInput) easypaisaInput.value = appSettings.easypaisa || '';
-                    
-                    const jazzInput = document.getElementById('admin-jazzcash');
-                    if(jazzInput) jazzInput.value = appSettings.jazzcash || '';
-
-                    const tillInput = document.getElementById('admin-tillid');
-                    if(tillInput) tillInput.value = appSettings.tillid || '';
-
-                    const qrInput = document.getElementById('admin-qr-url');
-                    if(qrInput) qrInput.value = appSettings.qrUrl || './qr.png';
+                    appSettings.minWithdraw = data.minWithdraw || 50;
+                    appSettings.withdrawFee = data.withdrawFee || 0.05;
+                    appSettings.easypaisa = data.easypaisa || '0300-1234567';
+                    appSettings.jazzcash = data.jazzcash || '0321-7654321';
+                    appSettings.tillid = data.tillid || '03XX-XXXXXXX (Raast)';
+                    if (data.qrUrl) {
+                        const qrImg = document.getElementById('deposit-qr-image');
+                        if(qrImg) qrImg.src = data.qrUrl;
+                    }
                 }
             });
         }
@@ -528,8 +564,17 @@
         };
 
         function loadAdminMarket() {
-            document.getElementById('admin-tk-price').value = marketData.tkPrice;
-            document.getElementById('admin-usdt-rate').value = marketData.usdtRate;
+            document.getElementById('admin-tk-price').value = marketData.tkPrice || 1.50;
+            document.getElementById('admin-usdt-rate').value = marketData.usdtRate || 280;
+            
+            // Mode load karein
+            document.getElementById('admin-rate-mode').value = marketData.mode || 'manual';
+            document.getElementById('admin-auto-range').value = marketData.autoRange || 100;
+            document.getElementById('admin-auto-interval').value = marketData.autoInterval || 30;
+            
+            toggleRateMode();
+            
+            // Baaki settings load karein
             document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
             document.getElementById('admin-withdraw-fee').value = (appSettings.withdrawFee * 100) || 5;
             document.getElementById('admin-easypaisa').value = appSettings.easypaisa || '0300-1234567';
@@ -538,29 +583,29 @@
             document.getElementById('admin-qr-url').value = appSettings.qrUrl || './qr.png';
         }
 
+        // ======== MODIFIED UPDATE ADMIN SETTINGS FUNCTION ========
         window.updateAdminSettings = () => {
-            const price = parseFloat(document.getElementById('admin-tk-price').value);
-            const rate = parseFloat(document.getElementById('admin-usdt-rate').value);
-            const minWithdraw = parseFloat(document.getElementById('admin-min-withdraw').value);
-            
-            const easypaisa = document.getElementById('admin-easypaisa').value;
-            const jazzcash = document.getElementById('admin-jazzcash').value;
-            const tillid = document.getElementById('admin-tillid').value;
-            const qrUrl = document.getElementById('admin-qr-url').value;
-            
-            const withdrawFeePercent = parseFloat(document.getElementById('admin-withdraw-fee').value);
-            const withdrawFeeDecimal = withdrawFeePercent / 100;
-
+            const mode = document.getElementById('admin-rate-mode').value;
             const updates = {};
-            updates['market/tkPrice'] = price;
-            updates['market/usdtRate'] = rate;
-            updates['market/mode'] = 'manual';
-            updates['settings/minWithdraw'] = minWithdraw;
-            updates['settings/withdrawFee'] = withdrawFeeDecimal; 
-            updates['settings/easypaisa'] = easypaisa;
-            updates['settings/jazzcash'] = jazzcash;
-            updates['settings/tillid'] = tillid;
-            updates['settings/qrUrl'] = qrUrl;
+            
+            // Mode save karein
+            updates['market/mode'] = mode;
+            updates['market/autoRange'] = parseFloat(document.getElementById('admin-auto-range').value) || 100;
+            updates['market/autoInterval'] = parseFloat(document.getElementById('admin-auto-interval').value) || 30;
+            
+            // Agar manual mode hai to price bhi save karein
+            if (mode === 'manual') {
+                updates['market/tkPrice'] = parseFloat(document.getElementById('admin-tk-price').value);
+                updates['market/usdtRate'] = parseFloat(document.getElementById('admin-usdt-rate').value);
+            }
+            
+            // Baaki settings
+            updates['settings/minWithdraw'] = parseFloat(document.getElementById('admin-min-withdraw').value);
+            updates['settings/withdrawFee'] = parseFloat(document.getElementById('admin-withdraw-fee').value) / 100;
+            updates['settings/easypaisa'] = document.getElementById('admin-easypaisa').value;
+            updates['settings/jazzcash'] = document.getElementById('admin-jazzcash').value;
+            updates['settings/tillid'] = document.getElementById('admin-tillid').value;
+            updates['settings/qrUrl'] = document.getElementById('admin-qr-url').value;
 
             update(ref(db), updates).then(() => {
                 showToast("Settings Updated");
