@@ -33,6 +33,8 @@
 
         .hidden { display: none !important; }
         .text-orange { color: var(--primary); }
+        .text-green { color: var(--success); }
+        .text-blue { color: var(--blue); }
         .btn {
             background: var(--primary);
             color: white;
@@ -236,6 +238,32 @@
                 display: none;
             }
         }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+        .summary-card h4 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .summary-card .amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .profit { color: var(--success); }
+        .loss { color: var(--danger); }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -278,6 +306,10 @@
                     <div class="menu-card" onclick="window.showAdminSection('news')">
                         <span class="menu-icon"><i class="fas fa-newspaper"></i></span>
                         <div>News</div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('summary')">
+                        <span class="menu-icon text-orange"><i class="fas fa-chart-pie"></i></span>
+                        <div>Summary</div>
                     </div>
                 </div>
 
@@ -419,6 +451,47 @@
                             </tr>
                         </thead>
                         <tbody id="admin-user-list">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- NEW SECTION: Summary & Profit/Loss -->
+            <section id="admin-summary" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Financial Summary</h3>
+                
+                <div class="summary-grid" style="margin-top: 20px;">
+                    <div class="summary-card">
+                        <h4><i class="fas fa-arrow-down text-green"></i> Total Approved Deposits</h4>
+                        <div class="amount text-green" id="total-deposits-pkr">Rs. 0</div>
+                        <small style="color: var(--text-muted);" id="total-deposits-tk">0 TK</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4><i class="fas fa-arrow-up text-danger"></i> Total Approved Withdrawals</h4>
+                        <div class="amount text-danger" id="total-withdrawals-pkr">Rs. 0</div>
+                        <small style="color: var(--text-muted);" id="total-withdrawals-tk">0 TK</small>
+                    </div>
+                </div>
+
+                <div class="summary-card" style="margin-bottom: 20px;">
+                    <h4>Net Profit/Loss</h4>
+                    <div class="amount" id="net-profit-loss">Rs. 0</div>
+                    <small style="color: var(--text-muted);">Deposits - Withdrawals</small>
+                </div>
+
+                <h3 class="text-orange" style="margin: 20px 0 15px 0;">User-wise Profit/Loss (PKR)</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Total Deposits</th>
+                                <th>Total Withdrawals</th>
+                                <th>Profit/Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-profit-loss-list">
                         </tbody>
                     </table>
                 </div>
@@ -636,6 +709,7 @@
             if (sectionId === 'users') loadAdminUsers();
             if (sectionId === 'market') loadAdminMarket();
             if (sectionId === 'chat') loadAdminChatList();
+            if (sectionId === 'summary') loadSummaryData();
         };
 
         function loadAdminMarket() {
@@ -882,6 +956,98 @@
                     });
                 });
             }
+        }
+        
+        // ======== SUMMARY & PROFIT/LOSS FUNCTIONS ========
+        function loadSummaryData() {
+            const usdtRate = marketData.usdtRate || 280;
+            const tkPrice = marketData.tkPrice || 1.50;
+            
+            // Get all deposits
+            get(ref(db, 'deposits')).then(depositSnap => {
+                const deposits = depositSnap.val() || {};
+                let totalDepositsTK = 0;
+                let userDeposits = {};
+                
+                Object.values(deposits).forEach(dep => {
+                    if (dep.status === 'approved') {
+                        totalDepositsTK += dep.amount;
+                        if (!userDeposits[dep.userId]) userDeposits[dep.userId] = 0;
+                        userDeposits[dep.userId] += dep.amount;
+                    }
+                });
+                
+                // Get all withdrawals
+                get(ref(db, 'withdrawals')).then(withdrawSnap => {
+                    const withdrawals = withdrawSnap.val() || {};
+                    let totalWithdrawalsTK = 0;
+                    let userWithdrawals = {};
+                    
+                    Object.values(withdrawals).forEach(withdraw => {
+                        if (withdraw.status === 'approved') {
+                            totalWithdrawalsTK += withdraw.total;
+                            if (!userWithdrawals[withdraw.userId]) userWithdrawals[withdraw.userId] = 0;
+                            userWithdrawals[withdraw.userId] += withdraw.total;
+                        }
+                    });
+                    
+                    // Calculate PKR values (TK * USDT Rate)
+                    const totalDepositsPKR = totalDepositsTK * usdtRate;
+                    const totalWithdrawalsPKR = totalWithdrawalsTK * usdtRate;
+                    const netProfitLoss = totalDepositsPKR - totalWithdrawalsPKR;
+                    
+                    // Update summary cards
+                    document.getElementById('total-deposits-pkr').innerText = 'Rs. ' + totalDepositsPKR.toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    document.getElementById('total-deposits-tk').innerText = totalDepositsTK.toFixed(2) + ' TK';
+                    document.getElementById('total-withdrawals-pkr').innerText = 'Rs. ' + totalWithdrawalsPKR.toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    document.getElementById('total-withdrawals-tk').innerText = totalWithdrawalsTK.toFixed(2) + ' TK';
+                    
+                    const netElement = document.getElementById('net-profit-loss');
+                    netElement.innerText = 'Rs. ' + Math.abs(netProfitLoss).toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    netElement.className = 'amount ' + (netProfitLoss >= 0 ? 'profit' : 'loss');
+                    
+                    // Load user-wise profit/loss
+                    loadUserProfitLoss(userDeposits, userWithdrawals, usdtRate);
+                });
+            });
+        }
+        
+        function loadUserProfitLoss(userDeposits, userWithdrawals, usdtRate) {
+            const list = document.getElementById('user-profit-loss-list');
+            list.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#777;">Loading...</td></tr>';
+            
+            get(ref(db, 'users')).then(userSnap => {
+                const users = userSnap.val() || {};
+                let html = '';
+                
+                Object.keys(users).forEach(uid => {
+                    const user = users[uid];
+                    const depTK = userDeposits[uid] || 0;
+                    const withTK = userWithdrawals[uid] || 0;
+                    const depPKR = depTK * usdtRate;
+                    const withPKR = withTK * usdtRate;
+                    const profitLoss = depPKR - withPKR;
+                    
+                    if (depTK > 0 || withTK > 0) { // Only show users with transactions
+                        html += `
+                            <tr>
+                                <td>${user.name || user.email || 'Unknown'}</td>
+                                <td style="color: var(--success);">Rs. ${depPKR.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                                <td style="color: var(--danger);">Rs. ${withPKR.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                                <td style="color: ${profitLoss >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: bold;">
+                                    ${profitLoss >= 0 ? '+' : '-'}Rs. ${Math.abs(profitLoss).toLocaleString('en-IN', {maximumFractionDigits: 2})}
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+                
+                if (html === '') {
+                    html = '<tr><td colspan="4" style="text-align:center; color:#777;">No transactions found</td></tr>';
+                }
+                
+                list.innerHTML = html;
+            });
         }
         
         function loadAdminChatList() {
