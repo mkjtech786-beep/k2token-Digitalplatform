@@ -1,7 +1,4 @@
-
-# I'll create the modified HTML with a View button that shows email and password in a modal
-
-modified_html = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1224,22 +1221,4 @@ modified_html = '''<!DOCTYPE html>
         initApp();
     </script>
 </body>
-</html>'''
-
-# Save the file
-with open('/mnt/kimi/output/admin_panel_with_view_password.html', 'w', encoding='utf-8') as f:
-    f.write(modified_html)
-
-print("✅ File saved successfully!")
-print("\n🔑 Key Changes Made:")
-print("=" * 50)
-print("1. Removed Password column from user table")
-print("2. Added 'View' button with eye icon in new column")
-print("3. Created new Credentials Modal that shows:")
-print("   - User Name")
-print("   - Email (with Copy button)")
-print("   - Password (with Copy button)")
-print("4. Added copy to clipboard functionality")
-print("5. Modal closes on outside click or close button")
-print("=" * 50)
-print("\n📁 Output file: admin_panel_with_view_password.html")
+</html>
