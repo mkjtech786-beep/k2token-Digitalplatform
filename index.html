@@ -395,7 +395,26 @@
                     </div>
                 </div>
 
-                <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Wallet Settings</div>
+                <div class="settings-divider">Transfer Settings</div>
+
+                <div class="input-group">
+                    <label>Minimum Transfer (TK)</label>
+                    <input type="number" id="admin-min-transfer" step="1" value="10">
+                </div>
+
+                <div class="input-group">
+                    <label>Transfer Tax (%)</label>
+                    <input type="number" id="admin-transfer-tax" step="0.1" value="2">
+                </div>
+
+                <div class="settings-divider">Deposit Settings</div>
+
+                <div class="input-group">
+                    <label>Minimum Deposit (PKR)</label>
+                    <input type="number" id="admin-min-deposit" step="10" value="500">
+                </div>
+
+                <div class="settings-divider">Wallet Settings</div>
 
                 <div class="input-group">
                     <label>Minimum Withdraw (TK)</label>
@@ -407,7 +426,7 @@
                     <input type="number" id="admin-withdraw-fee" step="0.01">
                 </div>
 
-                <div style="margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; color: var(--primary); font-size: 0.9rem;">Deposit Details</div>
+                <div class="settings-divider">Deposit Details</div>
 
                 <div class="input-group">
                     <label>Easypaisa Number</label>
@@ -790,10 +809,9 @@
                     appSettings.easypaisa = data.easypaisa || '0300-1234567';
                     appSettings.jazzcash = data.jazzcash || '0321-7654321';
                     appSettings.tillid = data.tillid || '03XX-XXXXXXX (Raast)';
-                    if (data.qrUrl) {
-                        const qrImg = document.getElementById('deposit-qr-image');
-                        if(qrImg) qrImg.src = data.qrUrl;
-                    }
+                    appSettings.minTransfer = data.minTransfer || 10;
+                    appSettings.transferTax = data.transferTax || 0.02;
+                    appSettings.minDeposit = data.minDeposit || 500;
                 }
             });
         }
@@ -816,6 +834,12 @@
             document.getElementById('admin-rate-mode').value = marketData.mode || 'manual';
             document.getElementById('admin-auto-range').value = marketData.autoRange || 100;
             document.getElementById('admin-auto-interval').value = marketData.autoInterval || 30;
+            
+            // NEW: Load transfer and deposit settings
+            document.getElementById('admin-min-transfer').value = appSettings.minTransfer || 10;
+            document.getElementById('admin-transfer-tax').value = (appSettings.transferTax * 100) || 2;
+            document.getElementById('admin-min-deposit').value = appSettings.minDeposit || 500;
+            
             toggleRateMode();
             document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
             document.getElementById('admin-withdraw-fee').value = (appSettings.withdrawFee * 100) || 5;
@@ -836,6 +860,11 @@
                 updates['market/tkPrice'] = parseFloat(document.getElementById('admin-tk-price').value);
                 updates['market/usdtRate'] = parseFloat(document.getElementById('admin-usdt-rate').value);
             }
+            
+            // NEW: Transfer and deposit settings
+            updates['settings/minTransfer'] = parseFloat(document.getElementById('admin-min-transfer').value) || 10;
+            updates['settings/transferTax'] = (parseFloat(document.getElementById('admin-transfer-tax').value) || 2) / 100;
+            updates['settings/minDeposit'] = parseFloat(document.getElementById('admin-min-deposit').value) || 500;
             
             updates['settings/minWithdraw'] = parseFloat(document.getElementById('admin-min-withdraw').value);
             updates['settings/withdrawFee'] = parseFloat(document.getElementById('admin-withdraw-fee').value) / 100;
