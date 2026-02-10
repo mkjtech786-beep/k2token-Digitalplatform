@@ -110,7 +110,6 @@
         .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
         .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
 
-        /* Chat Styles */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -137,7 +136,6 @@
         }
         .chat-user-item:hover { background: var(--primary); }
         
-        /* Unread Badge Style */
         .unread-badge {
             color: #ff0000;
             font-size: 10px;
@@ -169,19 +167,18 @@
         .msg-user { align-self: flex-end; background: var(--primary); color: white; }
         .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #333; }
 
-        /* Table Styles - MOBILE OPTIMIZED */
         .admin-table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-top: 10px; 
             font-size: 0.85rem;
-            min-width: 500px; /* Prevent collapsing */
+            min-width: 500px;
         }
         .admin-table th, .admin-table td { 
             text-align: left; 
             padding: 8px; 
             border-bottom: 1px solid #333; 
-            white-space: nowrap; /* Prevent wrapping */
+            white-space: nowrap;
         }
         .admin-table th { color: var(--primary); }
         .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
@@ -189,6 +186,8 @@
         .status-approved { background: #00c853; color: white; }
         .status-rejected { background: #ff3d00; color: white; }
         .status-banned { background: #333; color: red; border: 1px solid red; }
+        .status-active { background: #00c853; color: white; }
+        .status-matured { background: var(--blue); color: white; }
 
         .settings-divider {
             margin: 20px 0 10px 0;
@@ -198,7 +197,6 @@
             font-size: 0.9rem;
         }
 
-        /* Online Indicator for Active Users */
         .online-indicator {
             display: inline-block;
             width: 8px;
@@ -216,25 +214,13 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        /* MOBILE OPTIMIZATION FOR USER LIST */
         @media (max-width: 600px) {
-            .admin-table {
-                font-size: 0.75rem; /* Smaller font */
-            }
-            .admin-table th, .admin-table td {
-                padding: 6px 4px; /* Reduce padding */
-            }
-            .btn-sm {
-                padding: 4px 8px; /* Smaller buttons */
-                font-size: 0.7rem;
-            }
-            .online-indicator {
-                width: 6px;
-                height: 6px;
-            }
+            .admin-table { font-size: 0.75rem; }
+            .admin-table th, .admin-table td { padding: 6px 4px; }
+            .btn-sm { padding: 4px 8px; font-size: 0.7rem; }
+            .online-indicator { width: 6px; height: 6px; }
         }
 
-        /* Summary Cards */
         .summary-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -260,7 +246,6 @@
         .profit { color: var(--success); }
         .loss { color: var(--danger); }
 
-        /* User Credentials Modal Styles */
         .credentials-box {
             background: #2a2a2a;
             border: 1px solid var(--primary);
@@ -275,9 +260,7 @@
             padding: 10px 0;
             border-bottom: 1px solid #444;
         }
-        .credential-item:last-child {
-            border-bottom: none;
-        }
+        .credential-item:last-child { border-bottom: none; }
         .credential-label {
             color: var(--text-muted);
             font-size: 0.9rem;
@@ -309,9 +292,7 @@
 
     <div id="toast-container"></div>
 
-    <!-- Main App Container -->
     <div id="app-container" class="hidden">
-        
         <header>
             <div class="logo">
                 <i class="fas fa-user-shield"></i> TK Admin
@@ -331,12 +312,10 @@
                         <span class="menu-icon text-green"><i class="fas fa-check-double"></i></span>
                         <div>Deposits <span id="admin-dep-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
                     </div>
-                    
                     <div class="menu-card" onclick="window.showAdminSection('withdrawals')">
                         <span class="menu-icon text-blue"><i class="fas fa-money-bill-wave"></i></span>
                         <div>Withdrawals <span id="admin-with-pending-count" class="badge" style="background:red; padding:2px 5px; border-radius:50%; font-size:0.7rem; color:white;">0</span></div>
                     </div>
-
                     <div class="menu-card" onclick="window.showAdminSection('users')">
                         <span class="menu-icon text-blue"><i class="fas fa-users"></i></span>
                         <div>Users</div>
@@ -348,6 +327,10 @@
                     <div class="menu-card" onclick="window.showAdminSection('summary')">
                         <span class="menu-icon text-orange"><i class="fas fa-chart-pie"></i></span>
                         <div>Summary</div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('savings')">
+                        <span class="menu-icon text-green"><i class="fas fa-piggy-bank"></i></span>
+                        <div>Savings</div>
                     </div>
                 </div>
 
@@ -362,7 +345,6 @@
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">App Settings</h3>
                 
-                <!-- Rate Mode Selector -->
                 <div class="input-group">
                     <label>Rate Mode</label>
                     <select id="admin-rate-mode" onchange="window.toggleRateMode()">
@@ -371,7 +353,6 @@
                     </select>
                 </div>
 
-                <!-- Manual Controls -->
                 <div id="manual-controls">
                     <div class="input-group">
                         <label>TK Price (USDT) - Internal Rate</label>
@@ -383,7 +364,6 @@
                     </div>
                 </div>
 
-                <!-- Auto Controls (Hidden by default) -->
                 <div id="auto-controls" class="hidden">
                     <div class="input-group">
                         <label>Fluctuation Range (PKR)</label>
@@ -396,38 +376,32 @@
                 </div>
 
                 <div class="settings-divider">Transfer Settings</div>
-
                 <div class="input-group">
                     <label>Minimum Transfer (TK)</label>
                     <input type="number" id="admin-min-transfer" step="1" value="10">
                 </div>
-
                 <div class="input-group">
                     <label>Transfer Tax (%)</label>
                     <input type="number" id="admin-transfer-tax" step="0.1" value="2">
                 </div>
 
                 <div class="settings-divider">Deposit Settings</div>
-
                 <div class="input-group">
                     <label>Minimum Deposit (PKR)</label>
                     <input type="number" id="admin-min-deposit" step="10" value="500">
                 </div>
 
                 <div class="settings-divider">Wallet Settings</div>
-
                 <div class="input-group">
                     <label>Minimum Withdraw (TK)</label>
                     <input type="number" id="admin-min-withdraw">
                 </div>
-
                 <div class="input-group">
                     <label>Withdraw Fee (%)</label>
                     <input type="number" id="admin-withdraw-fee" step="0.01">
                 </div>
 
                 <div class="settings-divider">Deposit Details</div>
-
                 <div class="input-group">
                     <label>Easypaisa Number</label>
                     <input type="text" id="admin-easypaisa">
@@ -445,6 +419,28 @@
                     <input type="text" id="admin-qr-url" placeholder="./qr.png">
                 </div>
 
+                <!-- Savings Settings -->
+                <div class="settings-divider">Savings Settings</div>
+                <div class="input-group">
+                    <label>30 Days Profit (%)</label>
+                    <input type="number" id="admin-savings-30" step="0.1" value="2.0">
+                </div>
+                <div class="input-group">
+                    <label>60 Days Profit (%)</label>
+                    <input type="number" id="admin-savings-60" step="0.1" value="3.0">
+                </div>
+                <div class="input-group">
+                    <label>90 Days Profit (%)</label>
+                    <input type="number" id="admin-savings-90" step="0.1" value="4.0">
+                </div>
+                <div class="input-group">
+                    <label>Minimum Savings Amount (PKR)</label>
+                    <input type="number" id="admin-min-savings" step="100" value="1000">
+                </div>
+                <div style="background: rgba(255,102,0,0.1); border: 1px solid var(--primary); padding: 10px; border-radius: 6px; margin: 15px 0; font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fas fa-info-circle"></i> Daily profit will be auto-calculated and credited to user wallets based on these percentages.
+                </div>
+
                 <button class="btn" onclick="window.updateAdminSettings()">Save All Settings</button>
             </section>
 
@@ -455,65 +451,42 @@
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
                         <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Amount</th>
-                                <th>Ref</th>
-                                <th>Action</th>
-                            </tr>
+                            <tr><th>User</th><th>Method</th><th>Amount</th><th>Ref</th><th>Action</th></tr>
                         </thead>
-                        <tbody id="admin-deposit-list">
-                        </tbody>
+                        <tbody id="admin-deposit-list"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- NEW SECTION: Withdrawals -->
+            <!-- Admin: Withdrawals -->
             <section id="admin-withdrawals" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">Withdrawal Requests</h3>
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
                         <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Amount</th>
-                                <th>Total</th>
-                                <th>View</th>
-                                <th>Action</th>
-                            </tr>
+                            <tr><th>User</th><th>Method</th><th>Amount</th><th>Total</th><th>View</th><th>Action</th></tr>
                         </thead>
-                        <tbody id="admin-withdraw-list">
-                        </tbody>
+                        <tbody id="admin-withdraw-list"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Admin: Users - MODIFIED WITH VIEW BUTTON -->
+            <!-- Admin: Users -->
             <section id="admin-users" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">User Management</h3>
-                <div style="overflow-x: auto;"> <!-- HORIZONTAL SCROLL WRAPPER -->
+                <div style="overflow-x: auto;">
                     <table class="admin-table">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Balance</th>
-                                <th>Active</th>
-                                <th>View</th>
-                                <th>Action</th>
-                            </tr>
+                            <tr><th>Name</th><th>Email</th><th>Balance</th><th>Active</th><th>View</th><th>Action</th></tr>
                         </thead>
-                        <tbody id="admin-user-list">
-                        </tbody>
+                        <tbody id="admin-user-list"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- NEW SECTION: Summary & Profit/Loss -->
+            <!-- Admin: Summary -->
             <section id="admin-summary" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">Financial Summary</h3>
@@ -541,15 +514,38 @@
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
                         <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Total Deposits</th>
-                                <th>Total Withdrawals</th>
-                                <th>Profit/Loss</th>
-                            </tr>
+                            <tr><th>User</th><th>Total Deposits</th><th>Total Withdrawals</th><th>Profit/Loss</th></tr>
                         </thead>
-                        <tbody id="user-profit-loss-list">
-                        </tbody>
+                        <tbody id="user-profit-loss-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: Savings Management -->
+            <section id="admin-savings" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;"><i class="fas fa-piggy-bank"></i> Savings Management</h3>
+                
+                <div class="summary-grid" style="margin-top: 20px;">
+                    <div class="summary-card">
+                        <h4>Total Active Savings</h4>
+                        <div class="amount text-orange" id="admin-total-savings-pkr">Rs. 0</div>
+                        <small style="color: var(--text-muted);" id="admin-total-savings-count">0 Active Plans</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Total Profit Distributed</h4>
+                        <div class="amount text-green" id="admin-total-profit">Rs. 0</div>
+                        <small style="color: var(--text-muted);">Lifetime</small>
+                    </div>
+                </div>
+
+                <h3 class="text-orange" style="margin: 20px 0 15px 0;">Active Savings Plans</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User</th><th>Amount</th><th>Plan</th><th>Start Date</th><th>Maturity</th><th>Status</th><th>Profit</th></tr>
+                        </thead>
+                        <tbody id="admin-savings-list"></tbody>
                     </table>
                 </div>
             </section>
@@ -566,26 +562,21 @@
                 <button class="btn" onclick="window.postNews()">Post Update</button>
             </section>
 
-             <!-- Admin: Chat -->
-             <section id="admin-chat" class="section hidden">
+            <!-- Admin: Chat -->
+            <section id="admin-chat" class="section hidden">
                 <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
                 <h3 class="text-orange" style="margin-top: 15px;">User Chats <small style="color:red; font-size:0.7rem;">(Real-time)</small></h3>
-                
                 <div class="chat-container">
-                    <!-- User List -->
-                    <div id="admin-chat-list" class="chat-user-list">
-                    </div>
-
-                    <!-- Chat Window -->
+                    <div id="admin-chat-list" class="chat-user-list"></div>
                     <div id="admin-chat-window" class="chat-box hidden">
-                         <div style="padding:10px; border-bottom: 1px solid #333; background:var(--bg-card);">
-                             Chatting with: <strong id="chatting-with-name" class="text-orange">--</strong>
-                         </div>
-                         <div class="chat-messages" id="admin-chat-messages"></div>
-                         <div class="chat-input-area">
-                             <input type="text" id="admin-chat-input" placeholder="Reply...">
-                             <button class="btn btn-sm" onclick="window.adminSendReply()">Reply</button>
-                         </div>
+                        <div style="padding:10px; border-bottom: 1px solid #333; background:var(--bg-card);">
+                            Chatting with: <strong id="chatting-with-name" class="text-orange">--</strong>
+                        </div>
+                        <div class="chat-messages" id="admin-chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="admin-chat-input" placeholder="Reply...">
+                            <button class="btn btn-sm" onclick="window.adminSendReply()">Reply</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -597,22 +588,18 @@
                         <h3 class="text-orange" style="margin:0;">Withdrawal Details</h3>
                         <button onclick="window.closeWithdrawModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
                     </div>
-                    
                     <div style="margin-bottom:15px;">
                         <label style="color:var(--text-muted); font-size:0.8rem;">User</label>
                         <div id="modal-user" style="font-size:1rem; color:var(--text-light);"></div>
                     </div>
-                    
                     <div style="margin-bottom:15px;">
                         <label style="color:var(--text-muted); font-size:0.8rem;">Method</label>
                         <div id="modal-method" style="font-size:1rem; color:var(--text-light);"></div>
                     </div>
-                    
                     <div style="margin-bottom:15px; background:#2a2a2a; padding:15px; border-radius:8px; border:1px solid var(--primary);">
                         <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-university"></i> Account Number</label>
                         <div id="modal-account" style="font-size:1.2rem; color:var(--text-light); font-weight:bold; margin-top:5px; word-break:break-all;"></div>
                     </div>
-                    
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
                         <div>
                             <label style="color:var(--text-muted); font-size:0.8rem;">Amount</label>
@@ -623,7 +610,6 @@
                             <div id="modal-total" style="font-size:1rem; color:var(--primary); font-weight:bold;"></div>
                         </div>
                     </div>
-                    
                     <div style="display:flex; gap:10px;">
                         <button id="modal-approve-btn" class="btn" style="flex:1; background:var(--success);"><i class="fas fa-check"></i> Approve</button>
                         <button id="modal-reject-btn" class="btn" style="flex:1; background:var(--danger);"><i class="fas fa-times"></i> Reject</button>
@@ -631,19 +617,17 @@
                 </div>
             </div>
 
-            <!-- NEW: User Credentials Modal -->
+            <!-- User Credentials Modal -->
             <div id="credentials-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
                 <div style="background:var(--bg-card); border:1px solid #333; border-radius:12px; padding:20px; max-width:400px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
                         <h3 class="text-orange" style="margin:0;"><i class="fas fa-user-lock"></i> User Credentials</h3>
                         <button onclick="window.closeCredentialsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
                     </div>
-                    
                     <div style="margin-bottom:15px;">
                         <label style="color:var(--text-muted); font-size:0.8rem;">User Name</label>
                         <div id="cred-name" style="font-size:1.1rem; color:var(--text-light); font-weight:bold;"></div>
                     </div>
-                    
                     <div class="credentials-box">
                         <div class="credential-item">
                             <span class="credential-label"><i class="fas fa-envelope"></i> Email</span>
@@ -660,13 +644,11 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div style="background:#1a1a1a; padding:10px; border-radius:6px; margin-top:15px; border-left:3px solid var(--success);">
                         <small style="color:var(--text-muted);">
                             <i class="fas fa-info-circle"></i> Use these credentials to login as this user for support purposes.
                         </small>
                     </div>
-                    
                     <button class="btn" onclick="window.closeCredentialsModal()" style="margin-top:20px;">Close</button>
                 </div>
             </div>
@@ -676,15 +658,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { 
-            getDatabase, 
-            ref, 
-            push, 
-            onValue, 
-            update, 
-            get,
-            set
-        } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, get, set } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
@@ -714,7 +688,6 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // ======== TOGGLE RATE MODE FUNCTION ========
         window.toggleRateMode = () => {
             const mode = document.getElementById('admin-rate-mode').value;
             const manualControls = document.getElementById('manual-controls');
@@ -729,7 +702,6 @@
             }
         }
 
-        // ======== WITHDRAWAL MODAL FUNCTIONS ========
         window.viewWithdrawDetails = (key, userEmail, method, account, amount, total, userId) => {
             document.getElementById('modal-user').innerText = userEmail || 'Unknown';
             document.getElementById('modal-method').innerText = method || 'Unknown';
@@ -754,7 +726,6 @@
             document.getElementById('withdraw-modal').classList.add('hidden');
         }
 
-        // ======== NEW: USER CREDENTIALS MODAL FUNCTIONS ========
         window.viewUserCredentials = (name, email, password) => {
             document.getElementById('cred-name').innerText = name || 'Unknown User';
             document.getElementById('cred-email').innerText = email || 'N/A';
@@ -775,16 +746,11 @@
             });
         }
 
-        // Close modals when clicking outside
         document.addEventListener('click', (e) => {
             const withdrawModal = document.getElementById('withdraw-modal');
             const credModal = document.getElementById('credentials-modal');
-            if (e.target === withdrawModal) {
-                window.closeWithdrawModal();
-            }
-            if (e.target === credModal) {
-                window.closeCredentialsModal();
-            }
+            if (e.target === withdrawModal) window.closeWithdrawModal();
+            if (e.target === credModal) window.closeCredentialsModal();
         });
 
         function initApp() {
@@ -812,6 +778,10 @@
                     appSettings.minTransfer = data.minTransfer || 10;
                     appSettings.transferTax = data.transferTax || 0.02;
                     appSettings.minDeposit = data.minDeposit || 500;
+                    appSettings.savings30 = data.savings30 || 2.0;
+                    appSettings.savings60 = data.savings60 || 3.0;
+                    appSettings.savings90 = data.savings90 || 4.0;
+                    appSettings.minSavings = data.minSavings || 1000;
                 }
             });
         }
@@ -826,6 +796,7 @@
             if (sectionId === 'market') loadAdminMarket();
             if (sectionId === 'chat') loadAdminChatList();
             if (sectionId === 'summary') loadSummaryData();
+            if (sectionId === 'savings') loadAdminSavings();
         };
 
         function loadAdminMarket() {
@@ -835,10 +806,14 @@
             document.getElementById('admin-auto-range').value = marketData.autoRange || 100;
             document.getElementById('admin-auto-interval').value = marketData.autoInterval || 30;
             
-            // NEW: Load transfer and deposit settings
             document.getElementById('admin-min-transfer').value = appSettings.minTransfer || 10;
             document.getElementById('admin-transfer-tax').value = (appSettings.transferTax * 100) || 2;
             document.getElementById('admin-min-deposit').value = appSettings.minDeposit || 500;
+            
+            document.getElementById('admin-savings-30').value = appSettings.savings30 || 2.0;
+            document.getElementById('admin-savings-60').value = appSettings.savings60 || 3.0;
+            document.getElementById('admin-savings-90').value = appSettings.savings90 || 4.0;
+            document.getElementById('admin-min-savings').value = appSettings.minSavings || 1000;
             
             toggleRateMode();
             document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
@@ -861,10 +836,14 @@
                 updates['market/usdtRate'] = parseFloat(document.getElementById('admin-usdt-rate').value);
             }
             
-            // NEW: Transfer and deposit settings
             updates['settings/minTransfer'] = parseFloat(document.getElementById('admin-min-transfer').value) || 10;
             updates['settings/transferTax'] = (parseFloat(document.getElementById('admin-transfer-tax').value) || 2) / 100;
             updates['settings/minDeposit'] = parseFloat(document.getElementById('admin-min-deposit').value) || 500;
+            
+            updates['settings/savings30'] = parseFloat(document.getElementById('admin-savings-30').value) || 2.0;
+            updates['settings/savings60'] = parseFloat(document.getElementById('admin-savings-60').value) || 3.0;
+            updates['settings/savings90'] = parseFloat(document.getElementById('admin-savings-90').value) || 4.0;
+            updates['settings/minSavings'] = parseFloat(document.getElementById('admin-min-savings').value) || 1000;
             
             updates['settings/minWithdraw'] = parseFloat(document.getElementById('admin-min-withdraw').value);
             updates['settings/withdrawFee'] = parseFloat(document.getElementById('admin-withdraw-fee').value) / 100;
@@ -995,7 +974,6 @@
             });
         };
         
-        // ======== MODIFIED: User list with View button instead of showing password directly ========
         function loadAdminUsers() {
             const list = document.getElementById('admin-user-list');
             onValue(ref(db, 'users'), (snapshot) => {
@@ -1025,7 +1003,6 @@
                             }
                         }
 
-                        // MODIFIED: Added View button to show credentials modal
                         list.innerHTML += `
                             <tr>
                                 <td>${u.name}</td>
@@ -1157,6 +1134,64 @@
                 }
                 
                 list.innerHTML = html;
+            });
+        }
+
+        function loadAdminSavings() {
+            const list = document.getElementById('admin-savings-list');
+            
+            onValue(ref(db, 'savings'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                
+                let totalSavingsPKR = 0;
+                let activeCount = 0;
+                let totalProfitDistributed = 0;
+                
+                if (data) {
+                    Object.entries(data).forEach(([key, saving]) => {
+                        if (saving.status === 'active') {
+                            totalSavingsPKR += parseFloat(saving.amountPKR);
+                            activeCount++;
+                        }
+                        totalProfitDistributed += parseFloat(saving.totalProfitEarned || 0);
+                        
+                        const startDate = new Date(saving.startDate);
+                        const maturityDate = new Date(saving.maturityDate);
+                        const now = new Date();
+                        
+                        let statusClass = 'status-active';
+                        let statusText = 'Active';
+                        
+                        if (saving.status === 'matured') {
+                            statusClass = 'status-matured';
+                            statusText = 'Matured';
+                        } else if (now > maturityDate) {
+                            statusClass = 'status-matured';
+                            statusText = 'Ready';
+                        }
+                        
+                        list.innerHTML += `
+                            <tr>
+                                <td>${saving.userName || saving.userEmail}</td>
+                                <td>Rs. ${parseFloat(saving.amountPKR).toLocaleString()}</td>
+                                <td>${saving.plan} Days</td>
+                                <td>${startDate.toLocaleDateString()}</td>
+                                <td>${maturityDate.toLocaleDateString()}</td>
+                                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                <td style="color: var(--success);">Rs. ${(saving.totalProfitEarned || 0).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                
+                document.getElementById('admin-total-savings-pkr').innerText = 'Rs. ' + totalSavingsPKR.toLocaleString();
+                document.getElementById('admin-total-savings-count').innerText = activeCount + ' Active Plans';
+                document.getElementById('admin-total-profit').innerText = 'Rs. ' + totalProfitDistributed.toLocaleString();
+                
+                if (list.innerHTML === '') {
+                    list.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#777;">No savings plans found</td></tr>';
+                }
             });
         }
         
