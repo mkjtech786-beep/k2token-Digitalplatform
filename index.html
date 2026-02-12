@@ -441,6 +441,50 @@
                     <i class="fas fa-info-circle"></i> Daily profit will be auto-calculated and credited to user wallets based on these percentages.
                 </div>
 
+                
+                <!-- FAKE AUTO PRICE SYSTEM -->
+                <div class="settings-divider">🔥 Fake Auto Price System</div>
+                <div style="background: rgba(255,102,0,0.1); border: 2px solid var(--primary); border-radius: 8px; padding: 15px; margin: 15px 0;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <i class="fas fa-robot" style="color: var(--primary); font-size: 1.5rem; margin-right: 10px;"></i>
+                        <div>
+                            <div style="font-weight: bold; color: var(--primary);">Fake Auto Price Control</div>
+                            <small style="color: var(--text-muted);">Auto generate fake price movement for all users</small>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Fake Auto Mode</label>
+                        <select id="admin-fake-auto-enabled" onchange="window.toggleFakeAutoMode()">
+                            <option value="false">OFF (Manual/Normal)</option>
+                            <option value="true">ON (Fake Auto Active)</option>
+                        </select>
+                    </div>
+
+                    <div id="fake-auto-controls" class="hidden">
+                        <div class="input-group">
+                            <label>Base Price (PKR)</label>
+                            <input type="number" id="admin-fake-base-price" value="280" step="1">
+                            <small style="color: var(--text-muted);">Price will fluctuate around this base</small>
+                        </div>
+
+                        <div style="background: rgba(0,200,83,0.1); border: 1px solid var(--success); padding: 10px; border-radius: 6px; margin: 10px 0; font-size: 0.85rem; color: var(--success);">
+                            <i class="fas fa-info-circle"></i> <strong>How it works:</strong><br>
+                            • Price moves in sine wave pattern (60 second cycle)<br>
+                            • ±30 PKR fluctuation around base price<br>
+                            • Updates every 2 seconds<br>
+                            • Shows 15 points max on chart<br>
+                            • All users see same synced price<br>
+                            • Green dots = Price UP, Red dots = Price DOWN
+                        </div>
+
+                        <div style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; margin: 10px 0; font-size: 0.85rem; color: var(--danger);">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>Warning:</strong><br>
+                            When enabled, all users will see fake auto price instead of real market price!
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn" onclick="window.updateAdminSettings()">Save All Settings</button>
             </section>
 
@@ -753,6 +797,18 @@
             if (e.target === credModal) window.closeCredentialsModal();
         });
 
+        
+        window.toggleFakeAutoMode = () => {
+            const enabled = document.getElementById('admin-fake-auto-enabled').value === 'true';
+            const controls = document.getElementById('fake-auto-controls');
+
+            if (enabled) {
+                controls.classList.remove('hidden');
+            } else {
+                controls.classList.add('hidden');
+            }
+        };
+
         function initApp() {
             document.getElementById('app-container').classList.remove('hidden');
 
@@ -822,6 +878,16 @@
             document.getElementById('admin-jazzcash').value = appSettings.jazzcash || '0321-7654321';
             document.getElementById('admin-tillid').value = appSettings.tillid || '03XX-XXXXXXX (Raast)';
             document.getElementById('admin-qr-url').value = appSettings.qrUrl || './qr.png';
+
+            // Load Fake Auto Settings
+            onValue(ref(db, 'fakeAuto'), (snapshot) => {
+                const fakeData = snapshot.val();
+                if (fakeData) {
+                    document.getElementById('admin-fake-auto-enabled').value = fakeData.enabled ? 'true' : 'false';
+                    document.getElementById('admin-fake-base-price').value = fakeData.basePrice || 280;
+                    window.toggleFakeAutoMode();
+                }
+            });
         }
 
         window.updateAdminSettings = () => {
@@ -851,6 +917,11 @@
             updates['settings/jazzcash'] = document.getElementById('admin-jazzcash').value;
             updates['settings/tillid'] = document.getElementById('admin-tillid').value;
             updates['settings/qrUrl'] = document.getElementById('admin-qr-url').value;
+
+            // Fake Auto Settings
+            const fakeAutoEnabled = document.getElementById('admin-fake-auto-enabled').value === 'true';
+            updates['fakeAuto/enabled'] = fakeAutoEnabled;
+            updates['fakeAuto/basePrice'] = parseFloat(document.getElementById('admin-fake-base-price').value) || 280;
 
             update(ref(db), updates).then(() => {
                 showToast("Settings Updated");
